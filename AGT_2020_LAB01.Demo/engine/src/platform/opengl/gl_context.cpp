@@ -15,6 +15,10 @@ void engine::gl_context::init()
 	const int status = gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress));
 	CORE_ASSERT(status, "Could not load Glad!");
 
+	char* pVersion = (char*)glGetString(GL_VERSION);
+	char* pVendor = (char*)glGetString(GL_VENDOR);
+	char* pRenderer = (char*)glGetString(GL_RENDERER);
+
 	LOG_CORE_INFO("OpenGL Info:");
 	LOG_CORE_INFO("\tVendor: {}", glGetString(GL_VENDOR));
 	LOG_CORE_INFO("\tRenderer: {}", glGetString(GL_RENDERER));

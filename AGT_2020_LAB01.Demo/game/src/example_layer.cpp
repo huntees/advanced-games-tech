@@ -12,9 +12,14 @@ example_layer::example_layer()
 	// hide the mouse and lock it inside the window
 	//engine::application::window().hide_mouse_cursor();
 
-	float radius = 2.f;
-	uint32_t stacks = 10;
-	uint32_t slices = 20;
+	float size = 2.f;
+
+	float radius = 2.f * size;
+	uint32_t stacks = 10 * size;
+	uint32_t slices = 20 * size;
+
+	m_position = 0.0f;
+	m_speed = 5.0f;
 
 	engine::ref<engine::sphere> m_sphere_shape = engine::sphere::create(stacks, slices, radius);
 	engine::game_object_properties sphere_props;
@@ -26,9 +31,14 @@ example_layer::example_layer()
 
 example_layer::~example_layer() {}
 
-void example_layer::on_update()
+void example_layer::on_update(const engine::timestep& time_step)
 {
+	//Sleep(100);
 
+	m_position += m_speed * time_step;
+	if (m_position > 10.0f || m_position < -10) {
+		m_position = -m_position;
+	}
 }
 
 void example_layer::on_render()
@@ -39,8 +49,8 @@ void example_layer::on_render()
 	const auto colour_shader = engine::renderer::shaders_library()->get("colour");
 	engine::renderer::begin_scene(m_3d_camera, colour_shader);
 
-	glm::vec4 sphere_colour = glm::vec4(1.f, 1.f, 1.f, 1.f);
-	glm::vec3 sphere_position = glm::vec3(0.0f, 1.5f, -20.0f);
+	glm::vec4 sphere_colour = glm::vec4(1.f, 0.f, 0.f, 1.f);
+	glm::vec3 sphere_position = glm::vec3(m_position, 1.5f, -20.0f);
 
 	std::dynamic_pointer_cast<engine::gl_shader>(colour_shader)->set_uniform("a_color", sphere_colour);
 	glm::mat4 transform_1 = glm::translate(glm::mat4(1.0f), sphere_position);

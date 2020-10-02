@@ -29,12 +29,19 @@ engine::application::~application()
 
 void engine::application::run()
 {
+    float m_last_frame_time = static_cast<float>(glfwGetTime());
+
     while (s_running)
     {
+        const auto time = static_cast<float>(glfwGetTime());
+
+        timestep time_step = time - m_last_frame_time;
+
+        m_last_frame_time = time;
 
         for (auto* layer : m_layers_stack)
         {
-			layer->on_update();
+			layer->on_update(time_step);
             layer->on_render();
         }
 
