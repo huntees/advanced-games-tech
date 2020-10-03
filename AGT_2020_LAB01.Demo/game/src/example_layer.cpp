@@ -12,7 +12,7 @@ example_layer::example_layer()
 	// hide the mouse and lock it inside the window
 	//engine::application::window().hide_mouse_cursor();
 
-	float size = 2.f;
+	float size = 1.2f;
 
 	float radius = 2.f * size;
 	uint32_t stacks = 10 * size;
@@ -52,11 +52,22 @@ void example_layer::on_render()
 	glm::vec4 sphere_colour = glm::vec4(1.f, 0.f, 0.f, 1.f);
 	glm::vec3 sphere_position = glm::vec3(m_position, 1.5f, -20.0f);
 
+	create_sphere(colour_shader, sphere_colour, sphere_position); //red sphere along x-axis
+	create_sphere(colour_shader, glm::vec4(0.f, 1.f, 0.f, 1.f), glm::vec3(0.f, m_position, -20.0f)); //green sphere along y-axis
+	create_sphere(colour_shader, glm::vec4(0.f, 0.f, 1.f, 1.f), glm::vec3(0.f, 0.f, m_position-20.f)); //blue sphere along z
+
+	//std::dynamic_pointer_cast<engine::gl_shader>(colour_shader)->set_uniform("a_color", sphere_colour);
+	//glm::mat4 transform_1 = glm::translate(glm::mat4(1.0f), sphere_position);
+	//engine::renderer::submit(colour_shader, m_sphere->meshes().at(0), transform_1);
+
+	engine::renderer::end_scene();
+}
+
+void example_layer::create_sphere(const engine::ref<engine::shader>& colour_shader, glm::vec4& sphere_colour, glm::vec3& sphere_position) {
+
 	std::dynamic_pointer_cast<engine::gl_shader>(colour_shader)->set_uniform("a_color", sphere_colour);
 	glm::mat4 transform_1 = glm::translate(glm::mat4(1.0f), sphere_position);
 	engine::renderer::submit(colour_shader, m_sphere->meshes().at(0), transform_1);
-
-	engine::renderer::end_scene();
 }
 
 void example_layer::on_event(engine::event& event)
@@ -68,5 +79,33 @@ void example_layer::on_event(engine::event& event)
 		{
 			engine::render_command::toggle_wireframe();
 		}
+		if (e.key_code() == engine::key_codes::KEY_UP) {
+			m_speed = m_speed + 2.0f; //10% faster
+		}
+		if (e.key_code() == engine::key_codes::KEY_DOWN) {
+			m_speed = m_speed - 2.0f; //10% slower
+		}
+		if (e.key_code() == engine::key_codes::KEY_LEFT) {
+			if (m_speed > 0) {
+				m_speed = -m_speed; //changes direction to left
+			}
+		}
+		if (e.key_code() == engine::key_codes::KEY_RIGHT) {
+			if (m_speed < 0) {
+				m_speed = -m_speed; //changes direction to right
+			}
+		}
+
+
+		//speed cap
+		if (m_speed > 100.0f) {
+			m_speed = 100.0f;
+		}
+		else if (m_speed < -100.0f) {
+			m_speed = -100.0f;
+		}
+		
+
+
 	}
 }

@@ -10,6 +10,7 @@ public:
 	void on_update(const engine::timestep& time_step) override;
 	void on_render() override;
 	void on_event(engine::event& event) override;
+	void create_sphere(const engine::ref<engine::shader>& colour_shader, glm::vec4& sphere_colour, glm::vec3& sphere_position);
 
 private:
 
