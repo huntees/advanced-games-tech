@@ -12,9 +12,9 @@ example_layer::example_layer()
 	// hide the mouse and lock it inside the window
 	//engine::application::window().hide_mouse_cursor();
 
-	float size = 2.f;
+	size = 2.f;
 
-	float radius = 2.f * size;
+	radius = 2.f * size;
 	uint32_t stacks = 10 * size;
 	uint32_t slices = 20 * size;
 
@@ -36,8 +36,11 @@ void example_layer::on_update(const engine::timestep& time_step)
 	//Sleep(100);
 
 	m_position += m_speed * time_step;
-	if (m_position > 10.0f || m_position < -10) {
-		m_position = -m_position;
+	if (m_position > 10.0f+radius/2) {
+		m_speed = -m_speed;
+	}
+	else if (m_position < -10.0f-radius/2) {
+		m_speed = -m_speed;
 	}
 }
 

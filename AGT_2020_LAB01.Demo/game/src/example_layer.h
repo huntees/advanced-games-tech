@@ -22,4 +22,5 @@ private:
 
 	float m_position;
 	float m_speed;
+	float size, radius;
 };
