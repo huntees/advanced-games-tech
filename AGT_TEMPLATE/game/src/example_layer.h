@@ -1,6 +1,9 @@
 #pragma once
 #include <engine.h>
 
+
+class pickup;
+
 class example_layer : public engine::layer
 {
 public:
@@ -34,4 +37,6 @@ private:
 
     engine::orthographic_camera       m_2d_camera; 
     engine::perspective_camera        m_3d_camera;
+
+	engine::ref<pickup> m_pickup{};
 };

@@ -1,4 +1,5 @@
 #include "example_layer.h"
+#include "pickup.h"
 #include "platform/opengl/gl_shader.h"
 
 #include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
@@ -123,6 +124,16 @@ example_layer::example_layer()
 	tree_props.scale = glm::vec3(tree_scale);
 	m_tree = engine::game_object::create(tree_props);
 
+	// Load Medkit Model
+	engine::ref<engine::cuboid> pickup_shape = engine::cuboid::create(glm::vec4(0.5f), false);
+	engine::ref<engine::texture_2d> pickup_texture = engine::texture_2d::create("assets/textures/medkit.jpg", true);
+	engine::game_object_properties pickup_props;
+	pickup_props.position = { 5.1f, 1.f, 5.f };
+	pickup_props.meshes = { pickup_shape->mesh() };
+	pickup_props.textures = { pickup_texture };
+	m_pickup = pickup::create(pickup_props);
+	m_pickup->init();
+
 	engine::ref<engine::sphere> sphere_shape = engine::sphere::create(10, 20, 0.5f);
 	engine::game_object_properties sphere_props;
 	sphere_props.position = { 0.f, 5.f, -5.f };
@@ -156,6 +167,8 @@ void example_layer::on_update(const engine::timestep& time_step)
 	m_mannequin->animated_mesh()->on_update(time_step);
 
 	check_bounce();
+
+	m_pickup->update(m_3d_camera.position() ,time_step);
 } 
 
 void example_layer::on_render() 
@@ -183,17 +196,65 @@ void example_layer::on_render()
 
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
 
-	glm::mat4 tree_transform(1.0f);
-	tree_transform = glm::translate(tree_transform, glm::vec3(4.f, 0.5, -5.0f));
-	tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
-	tree_transform = glm::scale(tree_transform, m_tree->scale());
-	engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
+	for (int i = 0; i <= 10; ++i) {
+
+		glm::mat4 tree_transform(1.0f);
+		tree_transform = glm::translate(tree_transform, glm::vec3(-5.f + i, 0.5, -7.0f));
+		tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
+		tree_transform = glm::scale(tree_transform, m_tree->scale());
+		engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
+	}
 	
 	glm::mat4 cow_transform(1.0f);
-	cow_transform = glm::translate(cow_transform, m_cow->position());
+	cow_transform = glm::translate(cow_transform, glm::vec3(-1.f, 0.5f, -2.f));
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
+
+	cow_transform = glm::translate(cow_transform, glm::vec3(0.f, 1.5f, 0.f));
+	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
+
+	glm::mat4 cow_transform2(1.0f);
+	cow_transform2 = glm::translate(cow_transform2, glm::vec3(-1.3f, 0.5f, -1.8f));
+	cow_transform2 = glm::rotate(cow_transform2, 0.28f, m_cow->rotation_axis());
+	cow_transform2 = glm::scale(cow_transform2, glm::vec3(0.26f, 0.26f, 0.26f));
+	engine::renderer::submit(textured_lighting_shader, cow_transform2, m_cow);
+
+	glm::mat4 cow_transform3(1.0f);
+	cow_transform3 = glm::translate(cow_transform3, glm::vec3(-1.5f, 0.5f, -1.5f));
+	cow_transform3 = glm::rotate(cow_transform3, 0.60f, m_cow->rotation_axis());
+	cow_transform3 = glm::scale(cow_transform3, glm::vec3(0.23f, 0.23f, 0.23f));
+	engine::renderer::submit(textured_lighting_shader, cow_transform3, m_cow);
+
+	glm::vec3 p = glm::vec3(0.0f, 0.5f, 5.0f);
+	glm::vec3 c = m_3d_camera.position();
+	glm::vec v = c - p;
+	glm::vec test = glm::cross(p, c);
+
+	float theta = atan2(v.x,v.z);
+
+	float theta2 = -atan(v.y);
+
+	float theta3 = atan2(test.x, test.z);
+
+	const float diff = theta2; //-0.463647604f
+
+	glm::mat4 cow_transform4(1.0f);
+	cow_transform4 = glm::translate(cow_transform4, p);
+	cow_transform4 = glm::rotate(cow_transform4, m_cow->rotation_amount()+theta, glm::vec3(0.f, 1.f, 0.f));
+ 	cow_transform4 = glm::rotate(cow_transform4, m_cow->rotation_amount()+theta2 + 0.463647604f, glm::vec3(1.f, 0.f, 0.f));
+	cow_transform4 = glm::scale(cow_transform4, glm::vec3(0.23f, 0.23f, 0.23f));
+	engine::renderer::submit(textured_lighting_shader, cow_transform4, m_cow);
+
+	//render medkit pickup
+	if (m_pickup->active()) {
+
+		m_pickup->textures().at(0)->bind();
+		glm::mat4 pickup_transform(1.0f);
+		pickup_transform = glm::translate(pickup_transform, m_pickup->position());
+		pickup_transform = glm::rotate(pickup_transform, m_pickup->rotation_amount(), m_pickup->rotation_axis());
+		engine::renderer::submit(textured_lighting_shader, m_pickup->meshes().at(0), pickup_transform);
+	}
 
     engine::renderer::end_scene();
 
