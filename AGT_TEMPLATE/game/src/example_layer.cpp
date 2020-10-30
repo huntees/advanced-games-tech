@@ -201,8 +201,6 @@ void example_layer::on_update(const engine::timestep& time_step)
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
-	m_mannequin->animated_mesh()->on_update(time_step);
-
 	check_bounce();
 } 
 
