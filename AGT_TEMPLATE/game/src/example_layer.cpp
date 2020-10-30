@@ -63,6 +63,13 @@ example_layer::example_layer()
 	m_material = engine::material::create(1.0f, glm::vec3(1.0f, 0.1f, 0.07f),
 		glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 
+	m_tetrahedron_material = engine::material::create(32.0f,
+		glm::vec3(1.0f, 0.5f, 0.0f),
+		glm::vec3(1.0f, 0.5f, 0.0f),
+		glm::vec3(0.5f, 0.5f, 0.5f),
+		0.3f);
+
+
 
 	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
 	m_skybox = engine::skybox::create(50.f,
@@ -107,7 +114,8 @@ example_layer::example_layer()
 	cow_props.meshes = cow_model->meshes();
 	cow_props.textures = cow_model->textures();
 	float cow_scale = 1.f / glm::max(cow_model->size().x, glm::max(cow_model->size().y, cow_model->size().z));
-	cow_props.position = { -4.f,0.5f, -5.f };
+	//cow_props.position = { -4.f,0.5f, -5.f };
+	cow_props.position = { 0.f, 0.5f, -20.f };
 	cow_props.scale = glm::vec3(cow_scale);
 	cow_props.bounding_shape = cow_model->size() / 2.f * cow_scale;
 	m_cow = engine::game_object::create(cow_props);
@@ -132,6 +140,18 @@ example_layer::example_layer()
 	sphere_props.restitution = 0.92f;
 	sphere_props.mass = 0.000001f;
 	m_ball = engine::game_object::create(sphere_props);
+
+	std::vector<glm::vec3> tetrahedron_vertices;
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 10.f, 0.f));	//0
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 0.f, 10.f));	//1
+	tetrahedron_vertices.push_back(glm::vec3(-10.f, 0.f, -10.f));	//2
+	tetrahedron_vertices.push_back(glm::vec3(10.f, 0.f, -10.f));	//3
+
+	engine::ref<engine::tetrahedron> tetrahedron_shape = engine::tetrahedron::create(tetrahedron_vertices);
+	engine::game_object_properties tetrahedron_props;
+	tetrahedron_props.position = { 0.f, 0.5f, -20.f };
+	tetrahedron_props.meshes = { tetrahedron_shape->mesh() };
+	m_tetrahedron = engine::game_object::create(tetrahedron_props);
 
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
@@ -205,6 +225,9 @@ void example_layer::on_render()
 	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
 	engine::renderer::submit(material_shader, m_ball);
+
+	m_tetrahedron_material->submit(material_shader);
+	engine::renderer::submit(material_shader, m_tetrahedron);
 
 	engine::renderer::end_scene();
 
