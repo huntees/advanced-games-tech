@@ -112,6 +112,16 @@ example_layer::example_layer()
 	cow_props.bounding_shape = cow_model->size() / 2.f * cow_scale;
 	m_cow = engine::game_object::create(cow_props);
 
+	// Load the jeep model.
+	engine::ref <engine::model> jeep_model = engine::model::create("assets/models/static/jeep1.obj");
+	engine::game_object_properties jeep_props;
+	jeep_props.meshes = jeep_model->meshes();
+	jeep_props.textures = jeep_model->textures();
+	//float jeep_scale = 0.125f;
+	jeep_props.position = { -5.f, 0.5f, 0.f };
+	//jeep_props.scale = glm::vec3(jeep_scale);
+	m_jeep = engine::game_object::create(jeep_props);
+
 	// Load the tree model. Create a tree object. Set its properties
 	engine::ref <engine::model> tree_model = engine::model::create("assets/models/static/elm.3ds");
 	engine::game_object_properties tree_props;
@@ -123,6 +133,8 @@ example_layer::example_layer()
 	tree_props.scale = glm::vec3(tree_scale);
 	m_tree = engine::game_object::create(tree_props);
 
+
+	// Load sphere
 	engine::ref<engine::sphere> sphere_shape = engine::sphere::create(10, 20, 0.5f);
 	engine::game_object_properties sphere_props;
 	sphere_props.position = { 0.f, 5.f, -5.f };
@@ -132,6 +144,35 @@ example_layer::example_layer()
 	sphere_props.restitution = 0.92f;
 	sphere_props.mass = 0.000001f;
 	m_ball = engine::game_object::create(sphere_props);
+
+	// Load tetrahedron
+	std::vector<glm::vec3> tetrahedron_vertices;
+
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 10.f, 0.f));//0
+	tetrahedron_vertices.push_back(glm::vec3(0.f, 0.f, 10.f));//1
+	tetrahedron_vertices.push_back(glm::vec3(-10.f, 0.f, -10.f)); //2
+	tetrahedron_vertices.push_back(glm::vec3(10.f, 0.f, -10.f)); //3
+
+	engine::ref<engine::tetrahedron> tetrahedron_shape = engine::tetrahedron::create(tetrahedron_vertices);
+	engine::game_object_properties tetrahedron_props;
+	tetrahedron_props.position = { 0.f, 0.5f, -20.f };
+
+	//texture
+	std::vector<engine::ref<engine::texture_2d>> tetrahedron_textures =
+	{ engine::texture_2d::create("assets/textures/Skyscraper.bmp", false) };
+
+	tetrahedron_props.textures = tetrahedron_textures;
+
+	tetrahedron_props.meshes = { tetrahedron_shape->mesh() };
+	m_tetrahedron = engine::game_object::create(tetrahedron_props);
+
+
+
+	m_tetrahedron_material = engine::material::create(32.0f,
+		glm::vec3(1.0f, 0.5f, 0.0f),
+		glm::vec3(1.0f, 0.5f, 0.0f),
+		glm::vec3(0.5f, 0.5f, 0.5f),
+		0.3f);
 
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
@@ -183,6 +224,8 @@ void example_layer::on_render()
 
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
 
+	engine::renderer::submit(textured_lighting_shader, m_tetrahedron);
+
 	glm::mat4 tree_transform(1.0f);
 	tree_transform = glm::translate(tree_transform, glm::vec3(4.f, 0.5, -5.0f));
 	tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
@@ -194,6 +237,14 @@ void example_layer::on_render()
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
+
+	float jeep_x_rotation = 90.f * (glm::pi<float>()/180.f); //90 degrees multiplied by pi/180 giving radians
+
+	glm::mat4 jeep_transform(1.0f);
+	jeep_transform = glm::translate(jeep_transform, m_jeep->position());
+	jeep_transform = glm::rotate(jeep_transform, m_jeep->rotation_amount(), m_jeep->rotation_axis());
+	jeep_transform = glm::scale(jeep_transform, m_jeep->scale());
+	engine::renderer::submit(textured_lighting_shader, jeep_transform, m_jeep);
 
     engine::renderer::end_scene();
 

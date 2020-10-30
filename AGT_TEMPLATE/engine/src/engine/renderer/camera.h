@@ -110,7 +110,9 @@ namespace engine
             forward = 0, 
             backward, 
             left, 
-            right 
+            right,
+            up,
+            down
         };
 
     public: 
@@ -139,6 +141,9 @@ namespace engine
         const glm::mat4& view_projection_matrix() const override;
 
 		void set_view_matrix(glm::vec3 position, glm::vec3 look_at);
+
+        void engine::perspective_camera::update_rail(const timestep& ts);
+        void engine::perspective_camera::move_rail(e_direction direction, timestep ts);
 
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
