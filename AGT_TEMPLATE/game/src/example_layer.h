@@ -1,5 +1,6 @@
 #pragma once
 #include <engine.h>
+#include "player.h"
 
 class example_layer : public engine::layer
 {
@@ -12,6 +13,8 @@ public:
     void on_event(engine::event& event) override;
 
 private:
+	player m_player{};
+
 	void check_bounce();
 
 	engine::ref<engine::skybox>			m_skybox{};
