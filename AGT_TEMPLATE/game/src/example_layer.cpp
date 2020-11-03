@@ -69,13 +69,15 @@ example_layer::example_layer()
 
 	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
 	m_skybox = engine::skybox::create(50.f,
-		{ engine::texture_2d::create("assets/textures/skybox/SkyboxFront.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxRight.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBack.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxLeft.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxTop.bmp", true),
-		  engine::texture_2d::create("assets/textures/skybox/SkyboxBottom.bmp", true)
+		{ engine::texture_2d::create("assets/textures/skybox/posz.jpg", true),
+		  engine::texture_2d::create("assets/textures/skybox/posx.jpg", true),
+		  engine::texture_2d::create("assets/textures/skybox/negz.jpg", true),
+		  engine::texture_2d::create("assets/textures/skybox/negx.jpg", true),
+		  engine::texture_2d::create("assets/textures/skybox/posy.jpg", true),
+		  engine::texture_2d::create("assets/textures/skybox/negy.jpg", true)
 		});
+
+	
 
 	engine::ref<engine::skinned_mesh> m_skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
 	m_skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
@@ -96,7 +98,7 @@ example_layer::example_layer()
 	m_player.initialise(m_mannequin);
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
-	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain.bmp", false) };
+	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/Slabs.jpg", false) };
 	engine::ref<engine::terrain> terrain_shape = engine::terrain::create(100.f, 0.5f, 100.f);
 	engine::game_object_properties terrain_props;
 	terrain_props.meshes = { terrain_shape->mesh() };
