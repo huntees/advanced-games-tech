@@ -77,4 +77,6 @@ void player::jump() {
 	m_speed = 0.0f;
 
 	m_timer = m_object->animated_mesh()->animations().at(3)->mDuration;
+
+	m_speed = m_speed;
 }

@@ -6,6 +6,9 @@
 #include "engine/events/key_event.h"
 #include "engine/utils/track.h"
 
+#include "engine/core/input.h"
+#include "engine/key_codes.h"
+
 example_layer::example_layer() 
     :m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f), 
     m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())
@@ -193,15 +196,48 @@ example_layer::~example_layer() {}
 
 void example_layer::on_update(const engine::timestep& time_step) 
 {
-    //m_3d_camera.on_update(time_step);
+
+	if (engine::input::key_pressed(engine::key_codes::KEY_C)) {
+		if (firstPerson && camSwitchDelayReady) {
+
+			firstPerson = false;
+			camSwitchDelayReady = false;
+			camSwitchTimer = 0.15f;
+		}
+		else if (camSwitchDelayReady){
+
+			firstPerson = true;
+			camSwitchDelayReady = false;
+			camSwitchTimer = 0.15f;
+		}
+	}
+
+	if (firstPerson) {
+		m_3d_camera.on_update(time_step);
+	}
+	else {
+		m_player.update_camera(m_3d_camera);
+	}
+
+	if (camSwitchTimer > 0.0f)
+	{
+		camSwitchTimer -= (float)time_step;
+
+		if (camSwitchTimer < 0.0f)
+		{
+			camSwitchDelayReady = true;
+		}
+	}
+
+
+	//m_player.update_camera(m_3d_camera);
 
 	m_player.on_update(time_step);
-
-	m_player.update_camera(m_3d_camera);
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
 	check_bounce();
+
 } 
 
 void example_layer::on_render() 

@@ -40,4 +40,8 @@ private:
 
     engine::orthographic_camera       m_2d_camera; 
     engine::perspective_camera        m_3d_camera;
+
+	bool firstPerson;
+	bool camSwitchDelayReady = true;
+	float camSwitchTimer;
 };
