@@ -238,7 +238,7 @@ void example_layer::on_update(const engine::timestep& time_step)
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
-	check_bounce();
+ 	check_bounce();
 
 } 
 
@@ -326,7 +326,25 @@ void example_layer::on_event(engine::event& event)
         { 
             engine::render_command::toggle_wireframe();
         }
-    } 
+		if (e.key_code() == engine::key_codes::KEY_LEFT_SHIFT)
+		{
+			m_player.sprint(true);
+		}
+		if (e.key_code() == engine::key_codes::KEY_SPACE)
+		{
+			m_player.jump();
+		}
+
+    }
+
+	if (event.event_type() == engine::event_type_e::key_released)
+	{
+		auto& e = dynamic_cast<engine::key_released_event&>(event);
+		if (e.key_code() == engine::key_codes::KEY_LEFT_SHIFT)
+		{
+			m_player.sprint(false);
+		}
+	}
 }
 
 void example_layer::check_bounce()

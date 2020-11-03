@@ -22,8 +22,6 @@ void player::on_update(const engine::timestep& time_step)
 {
 	m_object->set_position(m_object->position() += m_object->forward() * m_speed * (float)time_step);
 
-	m_object->animated_mesh()->on_update(time_step);
-
 	m_object->set_rotation_amount(atan2(m_object->forward().x, m_object->forward().z));
 
 	if (engine::input::key_pressed(engine::key_codes::KEY_1)) {
@@ -33,9 +31,9 @@ void player::on_update(const engine::timestep& time_step)
 		turn(-1.0f * time_step);
 	}
 
-	if (engine::input::key_pressed(engine::key_codes::KEY_SPACE)) {
-		jump();
-	}
+	//if (engine::input::key_pressed(engine::key_codes::KEY_SPACE)) {
+	//	jump();
+	//}
 
 	if (m_timer > 0.0f)
 	{
@@ -45,9 +43,18 @@ void player::on_update(const engine::timestep& time_step)
 		{
 			m_object->animated_mesh()->switch_root_movement(false);
 			m_object->animated_mesh()->switch_animation(m_object->animated_mesh() -> default_animation());
-			m_speed = 1.0f;
+
+			state = Idling;
+ 			if (last_state == Sprinting) {
+				sprint(true);
+			}
+			else if (last_state == Walking) {
+				sprint(false);
+			}
 		}
 	}
+
+	m_object->animated_mesh()->on_update(time_step * animation_speed);
 }
 
 void player::turn(float angle) {
@@ -75,8 +82,28 @@ void player::jump() {
 	m_object->animated_mesh()->switch_root_movement(true);
 	m_object->animated_mesh()->switch_animation(3);
 	m_speed = 0.0f;
+	animation_speed = 1.f;
 
-	m_timer = m_object->animated_mesh()->animations().at(3)->mDuration;
+	m_timer = (m_object->animated_mesh()->animations().at(3)->mDuration);
 
-	m_speed = m_speed;
+	last_state = state;
+	state = Jumping;
+}
+
+void player::sprint(const bool& activateSprint) {
+
+	if (activateSprint && state != Jumping) {
+		state = Sprinting;
+		m_speed = 2.0f;
+		animation_speed = 1.5f;
+	}
+	else if(state != Jumping) {
+		state = Walking;
+		m_speed = 1.0f;
+		animation_speed = 1.f;
+	}
+	else if (state == Jumping) {
+		last_state = Walking;
+	}
+
 }

@@ -17,11 +17,17 @@ public:
 	void turn(float angle);
 	void update_camera(engine::perspective_camera& camera);
 	void jump();
+	void sprint(const bool& activateSprint);
 
 private:
 
 	float m_speed{ 0.f };
 	float m_timer;
+	float animation_speed{ 1.f };
+
+	enum State {Idling, Walking, Jumping, Sprinting, Flying};
+	State state{ Walking };
+	State last_state {Idling};
 
 	engine::ref< engine::game_object> m_object;
 };
