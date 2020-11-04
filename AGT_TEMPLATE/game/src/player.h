@@ -15,7 +15,8 @@ public:
 	engine::ref<engine::game_object> object() const { return m_object; }
 
 	void turn(float angle);
-	void update_camera(engine::perspective_camera& camera);
+	void update_first_person_camera(engine::perspective_camera& camera);
+	void update_third_person_camera(engine::perspective_camera& camera);
 	void jump();
 	void sprint(const bool& activateSprint);
 
@@ -24,6 +25,9 @@ private:
 	float m_speed{ 0.f };
 	float m_timer;
 	float animation_speed{ 1.f };
+
+	float m_yaw = -90.0f;
+	float m_pitch = 0.0f;
 
 	enum State {Idling, Walking, Jumping, Sprinting, Flying};
 	State state{ Walking };

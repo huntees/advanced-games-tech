@@ -62,7 +62,39 @@ void player::turn(float angle) {
 	m_object->set_forward(glm::rotate(m_object->forward(), angle, glm::vec3(0.f, 1.f, 0.f)));
 }
 
-void player::update_camera(engine::perspective_camera& camera)
+void player::update_first_person_camera(engine::perspective_camera& camera)
+{
+	auto [mouse_delta_x, mouse_delta_y] = engine::input::mouse_position();
+	mouse_delta_x *= 0.1f;
+	mouse_delta_y *= 0.1f;
+
+	m_yaw += mouse_delta_x;
+	m_pitch += mouse_delta_y;
+
+	static const float pitch_limit = 89.0f;
+	if (m_pitch > pitch_limit)
+		m_pitch = pitch_limit;
+	if (m_pitch < -pitch_limit)
+		m_pitch = -pitch_limit;
+
+	glm::vec3 front(0.f);
+	float yaw_radians = glm::radians(m_yaw);
+	float pitch_radians = glm::radians(m_pitch);
+	front.x = cos(yaw_radians) * cos(pitch_radians);
+	front.y = sin(pitch_radians);
+	front.z = sin(yaw_radians) * cos(pitch_radians);
+	
+
+	float A = 0.95f;
+	float B = 0.1f;
+
+	glm::vec3 cam_pos = m_object->position() + glm::normalize(m_object->forward()) * B;;
+	cam_pos.y += A;
+
+	camera.set_view_matrix(cam_pos, front, front);
+}
+
+void player::update_third_person_camera(engine::perspective_camera& camera)
 {
 	float A = 2.f;
 	float B = 3.f;

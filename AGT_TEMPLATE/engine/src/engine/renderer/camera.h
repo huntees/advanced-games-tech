@@ -141,6 +141,7 @@ namespace engine
         const glm::mat4& view_projection_matrix() const override;
 
 		void set_view_matrix(glm::vec3 position, glm::vec3 look_at);
+        void set_view_matrix(glm::vec3 position, glm::vec3 look_at, glm::vec3 front);
 
         void engine::perspective_camera::update_rail(const timestep& ts);
         void engine::perspective_camera::move_rail(e_direction direction, timestep ts);

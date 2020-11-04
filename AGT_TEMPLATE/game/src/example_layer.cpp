@@ -192,12 +192,17 @@ example_layer::example_layer()
 	m_text_manager = engine::text_manager::create();
 
 	m_skinned_mesh->switch_animation(1);
+
+	//Load Intro Screen Texture
+	m_intro_screen = intro_screen::create("assets/textures/introTemp.png", 1.6f, 0.9f);
 }
 
 example_layer::~example_layer() {}
 
 void example_layer::on_update(const engine::timestep& time_step) 
 {
+	m_intro_screen->on_update(time_step);
+
 
 	if (engine::input::key_pressed(engine::key_codes::KEY_C)) {
 		if (firstPerson && camSwitchDelayReady) {
@@ -215,10 +220,11 @@ void example_layer::on_update(const engine::timestep& time_step)
 	}
 
 	if (firstPerson) {
-		m_3d_camera.on_update(time_step);
+		//m_3d_camera.on_update(time_step);
+		m_player.update_first_person_camera(m_3d_camera);
 	}
 	else {
-		m_player.update_camera(m_3d_camera);
+		m_player.update_third_person_camera(m_3d_camera);
 	}
 
 	if (camSwitchTimer > 0.0f)
@@ -251,6 +257,9 @@ void example_layer::on_render()
     //engine::renderer::begin_scene(m_3d_camera, textured_shader);
 
 	const auto textured_lighting_shader = engine::renderer::shaders_library()->get("mesh_lighting");
+
+
+	//----------------------------------------------------3D Cam-------------------------------------------------------------------------
 	engine::renderer::begin_scene(m_3d_camera, textured_lighting_shader);
 
 	// Set up some of the scene's parameters in the shader
@@ -311,10 +320,19 @@ void example_layer::on_render()
 	engine::renderer::submit(animated_mesh_shader, m_player.object());
 
 	engine::renderer::end_scene();
+	//----------------------------------------------------3D Cam End--------------------------------------------------------------------------
 
 	// Render text
 	const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
 	m_text_manager->render_text(text_shader, "Orange Text", 10.f, (float)engine::application::window().height()-25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+
+	//----------------------------------------------------2D Cam-------------------------------------------------------------------------------
+	engine::renderer::begin_scene(m_2d_camera, textured_lighting_shader);
+
+	m_intro_screen->on_render(textured_lighting_shader);
+
+	engine::renderer::end_scene();
+	//----------------------------------------------------2D Cam End--------------------------------------------------------------------------
 } 
 
 void example_layer::on_event(engine::event& event) 
@@ -333,6 +351,10 @@ void example_layer::on_event(engine::event& event)
 		if (e.key_code() == engine::key_codes::KEY_SPACE)
 		{
 			m_player.jump();
+		}
+		if (e.key_code() == engine::key_codes::KEY_ENTER)
+		{
+			m_intro_screen->deactivate();
 		}
 
     }

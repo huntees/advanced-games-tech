@@ -1,6 +1,7 @@
 #pragma once
 #include <engine.h>
 #include "player.h"
+#include "intro_screen.h"
 
 class example_layer : public engine::layer
 {
@@ -41,7 +42,10 @@ private:
     engine::orthographic_camera       m_2d_camera; 
     engine::perspective_camera        m_3d_camera;
 
+	engine::ref<intro_screen>	m_intro_screen{};
+
 	bool firstPerson;
 	bool camSwitchDelayReady = true;
 	float camSwitchTimer;
+	bool playState = false;
 };
