@@ -26,6 +26,11 @@ private:
 	engine::ref<engine::game_object>	m_mannequin{};
 	engine::ref<engine::game_object>    m_tetrahedron{};
 	engine::ref<engine::game_object>	m_jeep{};
+	engine::ref<engine::game_object>	m_pizza{};
+	engine::ref<engine::game_object>	m_jet{};
+	engine::ref<engine::game_object>	m_office{};
+	engine::ref<engine::game_object>	m_sanfran{};
+	engine::ref<engine::game_object>	m_skyscrapers{};
 
 	engine::ref<engine::material>		m_material{};
 	engine::ref<engine::material>		m_tetrahedron_material{};

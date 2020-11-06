@@ -121,7 +121,7 @@ example_layer::example_layer()
 	m_cow = engine::game_object::create(cow_props);
 
 	// Load the jeep model.
-	engine::ref <engine::model> jeep_model = engine::model::create("assets/models/static/jeep1.obj");
+	engine::ref <engine::model> jeep_model = engine::model::create("assets/models/static/jeep1/jeep1.obj");
 	engine::game_object_properties jeep_props;
 	jeep_props.meshes = jeep_model->meshes();
 	jeep_props.textures = jeep_model->textures();
@@ -129,6 +129,46 @@ example_layer::example_layer()
 	jeep_props.position = { -5.f, 0.5f, 0.f };
 	//jeep_props.scale = glm::vec3(jeep_scale);
 	m_jeep = engine::game_object::create(jeep_props);
+
+	// Load pizza model
+	engine::ref <engine::model> pizza_model = engine::model::create("assets/models/static/pizza/pizza.obj");
+	engine::game_object_properties pizza_props;
+	pizza_props.meshes = pizza_model->meshes();
+	pizza_props.textures = pizza_model->textures();
+	pizza_props.position = { -1.f, 0.53f, 0.f };
+	m_pizza = engine::game_object::create(pizza_props);
+
+	//Load jet model
+	engine::ref <engine::model> jet_model = engine::model::create("assets/models/static/jet/jet.obj");
+	engine::game_object_properties jet_props;
+	jet_props.meshes = jet_model->meshes();
+	jet_props.textures = jet_model->textures();
+	jet_props.position = { 14.f, 1.5f, 9.f };
+	m_jet = engine::game_object::create(jet_props);
+
+	//Load office model
+	engine::ref <engine::model> office_model = engine::model::create("assets/models/static/office/office.obj");
+	engine::game_object_properties office_props;
+	office_props.meshes = office_model->meshes();
+	office_props.textures = office_model->textures();
+	office_props.position = { 25.f, 0.5f, 0.f };
+	m_office = engine::game_object::create(office_props);
+
+	//Load sanfran model
+	engine::ref <engine::model> sanfran_model = engine::model::create("assets/models/static/sanfran/sanfran.obj");
+	engine::game_object_properties sanfran_props;
+	sanfran_props.meshes = sanfran_model->meshes();
+	sanfran_props.textures = sanfran_model->textures();
+	sanfran_props.position = { -20.f, 1.72f, 10.f };
+	m_sanfran = engine::game_object::create(sanfran_props);
+
+	//Load skyscrapers model
+	engine::ref <engine::model> skyscrapers_model = engine::model::create("assets/models/static/skyscrapers/skyscrapers.obj");
+	engine::game_object_properties skyscrapers_props;
+	skyscrapers_props.meshes = skyscrapers_model->meshes();
+	skyscrapers_props.textures = skyscrapers_model->textures();
+	skyscrapers_props.position = { -25.f, -3.5f, 33.f };
+	m_skyscrapers = engine::game_object::create(skyscrapers_props);
 
 	// Load the tree model. Create a tree object. Set its properties
 	engine::ref <engine::model> tree_model = engine::model::create("assets/models/static/elm.3ds");
@@ -140,7 +180,6 @@ example_layer::example_layer()
 	tree_props.bounding_shape = tree_model->size() / 2.f * tree_scale;
 	tree_props.scale = glm::vec3(tree_scale);
 	m_tree = engine::game_object::create(tree_props);
-
 
 	// Load sphere
 	engine::ref<engine::sphere> sphere_shape = engine::sphere::create(10, 20, 0.5f);
@@ -281,6 +320,31 @@ void example_layer::on_render()
 
 	engine::renderer::submit(textured_lighting_shader, m_tetrahedron);
 
+	//office trees
+	for (int i = 0; i <= 3; ++i) {
+
+		glm::mat4 tree_transform(1.0f);
+		tree_transform = glm::translate(tree_transform, glm::vec3(9.5f + i * 3, 0.5, -1.0f));
+		tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
+		tree_transform = glm::scale(tree_transform, m_tree->scale());
+		engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
+	}
+
+	//sanfran trees
+	float tree = 0;
+
+	for (int i = 0; i <= 7; ++i) {
+
+		if (i > 3) {
+			tree = 6.5f;
+		}
+		glm::mat4 tree_transform(1.0f);
+		tree_transform = glm::translate(tree_transform, glm::vec3(-13.5f, 0.5, -13.5f + (i * 3) + tree));
+		tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
+		tree_transform = glm::scale(tree_transform, m_tree->scale());
+		engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
+	}
+
 	glm::mat4 tree_transform(1.0f);
 	tree_transform = glm::translate(tree_transform, glm::vec3(4.f, 0.5, -5.0f));
 	tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
@@ -300,6 +364,54 @@ void example_layer::on_render()
 	jeep_transform = glm::rotate(jeep_transform, m_jeep->rotation_amount(), m_jeep->rotation_axis());
 	jeep_transform = glm::scale(jeep_transform, m_jeep->scale());
 	engine::renderer::submit(textured_lighting_shader, jeep_transform, m_jeep);
+
+	glm::mat4 pizza_transform(1.0f);
+	pizza_transform = glm::translate(pizza_transform, m_pizza->position());
+	pizza_transform = glm::rotate(pizza_transform, m_pizza->rotation_amount() + glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+	pizza_transform = glm::scale(pizza_transform, m_pizza->scale());
+	engine::renderer::submit(textured_lighting_shader, pizza_transform, m_pizza);
+
+	glm::mat4 jet_transform(1.0f);
+	jet_transform = glm::translate(jet_transform, m_jet->position());
+	jet_transform = glm::rotate(jet_transform, m_jet->rotation_amount() + glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
+	jet_transform = glm::scale(jet_transform, m_jet->scale());
+	engine::renderer::submit(textured_lighting_shader, jet_transform, m_jet);
+
+	glm::mat4 jet_transform2(1.0f);
+	jet_transform2 = glm::translate(jet_transform2, glm::vec3(14.f, 1.5f, 18.f));
+	jet_transform2 = glm::rotate(jet_transform2, m_jet->rotation_amount() + glm::radians(-90.f), glm::vec3(0.f, 1.f, 0.f));
+	jet_transform2 = glm::scale(jet_transform2, m_jet->scale());
+	engine::renderer::submit(textured_lighting_shader, jet_transform2, m_jet);
+
+	glm::mat4 jet_transform3(1.0f);
+	jet_transform3 = glm::translate(jet_transform3, glm::vec3(-2.f, 40.f, 18.f));
+	jet_transform3 = glm::rotate(jet_transform3, m_jet->rotation_amount() + glm::radians(-15.f), glm::vec3(0.f, 0.f, 1.f));
+	jet_transform3 = glm::scale(jet_transform3, m_jet->scale());
+	engine::renderer::submit(textured_lighting_shader, jet_transform3, m_jet);
+
+	glm::mat4 office_transform(1.0f);
+	office_transform = glm::translate(office_transform, m_office->position());
+	office_transform = glm::rotate(office_transform, m_office->rotation_amount(), glm::vec3(0.f, 1.f, 0.f));
+	office_transform = glm::scale(office_transform, m_office->scale());
+	engine::renderer::submit(textured_lighting_shader, office_transform, m_office);
+
+	glm::mat4 sanfran_transform(1.0f);
+	sanfran_transform = glm::translate(sanfran_transform, m_sanfran->position());
+	sanfran_transform = glm::rotate(sanfran_transform, m_sanfran->rotation_amount() + glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+	sanfran_transform = glm::scale(sanfran_transform, m_sanfran->scale());
+	engine::renderer::submit(textured_lighting_shader, sanfran_transform, m_sanfran);
+
+	glm::mat4 skyscrapers_transform(1.0f);
+	skyscrapers_transform = glm::translate(skyscrapers_transform, m_skyscrapers->position());
+	skyscrapers_transform = glm::rotate(skyscrapers_transform, m_skyscrapers->rotation_amount(), glm::vec3(0.f, 1.f, 0.f));
+	skyscrapers_transform = glm::scale(skyscrapers_transform, m_skyscrapers->scale());
+	engine::renderer::submit(textured_lighting_shader, skyscrapers_transform, m_skyscrapers);
+
+	glm::mat4 skyscrapers_transform2(1.0f);
+	skyscrapers_transform2 = glm::translate(skyscrapers_transform2, glm::vec3(25.f, -3.5f, 60.f));
+	skyscrapers_transform2 = glm::rotate(skyscrapers_transform2, m_skyscrapers->rotation_amount() + glm::radians(180.f), glm::vec3(0.f, 1.f, 0.f));
+	skyscrapers_transform2 = glm::scale(skyscrapers_transform2, m_skyscrapers->scale());
+	engine::renderer::submit(textured_lighting_shader, skyscrapers_transform2, m_skyscrapers);
 
     engine::renderer::end_scene();
 
