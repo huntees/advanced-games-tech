@@ -20,7 +20,24 @@ void player::initialise(engine::ref<engine::game_object> object)
 
 void player::on_update(const engine::timestep& time_step)
 {
-	m_object->set_position(m_object->position() += m_object->forward() * m_speed * (float)time_step);
+
+	//WASD Movement
+	//m_object->set_position(m_object->position() += m_object->forward() * m_speed * (float)time_step);
+
+	if (engine::input::key_pressed(engine::key_codes::KEY_W)) {
+		m_object->set_position(m_object->position() += glm::vec3(0.f, 0.f, -m_speed * (float)time_step));
+	}
+	else if (engine::input::key_pressed(engine::key_codes::KEY_S)) {
+		m_object->set_position(m_object->position() += glm::vec3(0.f, 0.f, m_speed * (float)time_step));
+	}
+	if (engine::input::key_pressed(engine::key_codes::KEY_A)) {
+		m_object->set_position(m_object->position() += glm::vec3(-m_speed * (float)time_step, 0.f, 0.f));
+	}
+	else if (engine::input::key_pressed(engine::key_codes::KEY_D)) {
+		m_object->set_position(m_object->position() += glm::vec3(m_speed * (float)time_step, 0.f, 0.f));
+	}
+
+	//JUMP to be implemented down the line
 
 
 	m_object->set_rotation_amount(atan2(m_object->forward().x, m_object->forward().z));
@@ -60,6 +77,15 @@ void player::on_update(const engine::timestep& time_step)
 
 void player::turn(float angle) {
 
+	//Turns model to face where player is looking - will revisit this later down the line..
+	//static const float angle_limit = 1.0f;
+	//if (angle > angle_limit) {
+	//	angle = angle_limit;
+	//}
+	//if (angle < -angle_limit) {
+	//	angle = -angle_limit;
+	//}
+
 	m_object->set_forward(glm::rotate(m_object->forward(), angle, glm::vec3(0.f, 1.f, 0.f)));
 }
 
@@ -74,6 +100,9 @@ void player::update_first_person_camera(engine::perspective_camera& camera) {
 	cam_pos.y += A;
 
 	camera.set_view_matrix(cam_pos, mousepos, mousepos);
+
+	//Turns model to face where player is looking -- will revisit this later down the line..
+	//turn(mousepos.x * -0.05f);
 
 }
 
