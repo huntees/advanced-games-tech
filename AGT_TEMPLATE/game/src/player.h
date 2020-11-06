@@ -26,8 +26,11 @@ private:
 	float m_timer;
 	float animation_speed{ 1.f };
 
+	float forward{ 10.f };
+
 	float m_yaw = -90.0f;
 	float m_pitch = 0.0f;
+	glm::vec3 player::process_mouse();
 
 	enum State {Idling, Walking, Jumping, Sprinting, Flying};
 	State state{ Walking };

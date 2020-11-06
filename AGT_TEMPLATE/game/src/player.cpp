@@ -22,6 +22,7 @@ void player::on_update(const engine::timestep& time_step)
 {
 	m_object->set_position(m_object->position() += m_object->forward() * m_speed * (float)time_step);
 
+
 	m_object->set_rotation_amount(atan2(m_object->forward().x, m_object->forward().z));
 
 	if (engine::input::key_pressed(engine::key_codes::KEY_1)) {
@@ -62,8 +63,38 @@ void player::turn(float angle) {
 	m_object->set_forward(glm::rotate(m_object->forward(), angle, glm::vec3(0.f, 1.f, 0.f)));
 }
 
-void player::update_first_person_camera(engine::perspective_camera& camera)
-{
+void player::update_first_person_camera(engine::perspective_camera& camera) {
+
+	glm::vec3 mousepos = process_mouse();
+	
+	float A = 0.95f;
+	float B = 0.1f;
+
+	glm::vec3 cam_pos = m_object->position() + glm::normalize(m_object->forward()) * B;;
+	cam_pos.y += A;
+
+	camera.set_view_matrix(cam_pos, mousepos, mousepos);
+
+}
+
+void player::update_third_person_camera(engine::perspective_camera& camera) {
+
+	glm::vec3 mousepos = process_mouse();
+	mousepos.x *= 3.f;
+	mousepos.y *= 3.f;
+	mousepos.z *= 3.f;
+	 
+	glm::vec3 cam_pos = m_object->position() - mousepos;
+	cam_pos.y += 1.5f;
+
+	glm::vec3 cam_look_at = m_object->position();
+	cam_look_at.y = 1.5f;
+
+	camera.set_view_matrix(cam_pos, cam_look_at);
+}
+
+glm::vec3 player::process_mouse() {
+
 	auto [mouse_delta_x, mouse_delta_y] = engine::input::mouse_position();
 	mouse_delta_x *= 0.1f;
 	mouse_delta_y *= 0.1f;
@@ -72,41 +103,21 @@ void player::update_first_person_camera(engine::perspective_camera& camera)
 	m_pitch += mouse_delta_y;
 
 	static const float pitch_limit = 89.0f;
-	if (m_pitch > pitch_limit)
+	if (m_pitch > pitch_limit) {
 		m_pitch = pitch_limit;
-	if (m_pitch < -pitch_limit)
+	}
+	if (m_pitch < -pitch_limit) {
 		m_pitch = -pitch_limit;
+	}
 
-	glm::vec3 front(0.f);
+	glm::vec3 mousepos(0.f);
 	float yaw_radians = glm::radians(m_yaw);
 	float pitch_radians = glm::radians(m_pitch);
-	front.x = cos(yaw_radians) * cos(pitch_radians);
-	front.y = sin(pitch_radians);
-	front.z = sin(yaw_radians) * cos(pitch_radians);
-	
+	mousepos.x = cos(yaw_radians) * cos(pitch_radians);
+	mousepos.y = sin(pitch_radians);
+	mousepos.z = sin(yaw_radians) * cos(pitch_radians);
 
-	float A = 0.95f;
-	float B = 0.1f;
-
-	glm::vec3 cam_pos = m_object->position() + glm::normalize(m_object->forward()) * B;;
-	cam_pos.y += A;
-
-	camera.set_view_matrix(cam_pos, front, front);
-}
-
-void player::update_third_person_camera(engine::perspective_camera& camera)
-{
-	float A = 2.f;
-	float B = 3.f;
-	float C = 6.f;
-
-	glm::vec3 cam_pos = m_object->position() - glm::normalize(m_object->forward()) * B;
-	cam_pos.y += A;
-
-	glm::vec3 cam_look_at = m_object->position() + glm::normalize(m_object->forward() * C);
-	cam_look_at.y = 1.5f;
-
-	camera.set_view_matrix(cam_pos, cam_look_at);
+	return mousepos;
 }
 
 void player::jump() {

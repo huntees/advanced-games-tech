@@ -210,12 +210,14 @@ void example_layer::on_update(const engine::timestep& time_step)
 			firstPerson = false;
 			camSwitchDelayReady = false;
 			camSwitchTimer = 0.15f;
+			m_3d_camera.reset_camera();
 		}
 		else if (camSwitchDelayReady){
 
 			firstPerson = true;
 			camSwitchDelayReady = false;
 			camSwitchTimer = 0.15f;
+			m_3d_camera.reset_camera();
 		}
 	}
 
@@ -264,6 +266,7 @@ void example_layer::on_render()
 
 	// Set up some of the scene's parameters in the shader
 	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
+	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("lighting_on", true);
 
 	// Position the skybox centred on the player and render it
 	glm::mat4 skybox_tranform(1.0f);
@@ -327,6 +330,10 @@ void example_layer::on_render()
 	m_text_manager->render_text(text_shader, "Orange Text", 10.f, (float)engine::application::window().height()-25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 
 	//----------------------------------------------------2D Cam-------------------------------------------------------------------------------
+	//const auto hud_lighting_shader = engine::renderer::shaders_library()->get("mesh_lighting");
+	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->bind();
+	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader)->set_uniform("lighting_on", false);
+
 	engine::renderer::begin_scene(m_2d_camera, textured_lighting_shader);
 
 	m_intro_screen->on_render(textured_lighting_shader);

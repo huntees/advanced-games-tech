@@ -146,6 +146,8 @@ namespace engine
         void engine::perspective_camera::update_rail(const timestep& ts);
         void engine::perspective_camera::move_rail(e_direction direction, timestep ts);
 
+        void engine::perspective_camera::reset_camera();
+
     private: 
         void process_mouse(float mouse_delta_x, float mouse_delta_y, bool constrain_pitch = true);
         void move(e_direction direction, timestep ts); 
