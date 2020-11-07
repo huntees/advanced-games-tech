@@ -30,11 +30,13 @@ private:
 
 	float m_yaw = -90.0f;
 	float m_pitch = 0.0f;
+	glm::vec3 player_front { 0.f,0.f,1.f };
+	glm::vec3 player_up { 0.f,1.f,0.f };
+	glm::vec3 player_right { 1.f,0.f,0.f };
 	glm::vec3 player::process_mouse();
 
-	enum State {Idling, Walking, Jumping, Sprinting, Flying};
-	State state{ Walking };
-	State last_state {Idling};
+	bool isFirstPerson = true;
+	bool rotateAround = false;
 
 	engine::ref< engine::game_object> m_object;
 };

@@ -21,21 +21,49 @@ void player::initialise(engine::ref<engine::game_object> object)
 void player::on_update(const engine::timestep& time_step)
 {
 
+	//hold right click to rotate around player
+	rotateAround = false;
+	if (engine::input::mouse_button_pressed(1)) {
+		rotateAround = true;
+	}
+
+	if ((rotateAround && !isFirstPerson) ) {
+		
+	}
+	else {
+		m_object->set_forward(player_front);
+	}
+
+
 	//WASD Movement
 	//m_object->set_position(m_object->position() += m_object->forward() * m_speed * (float)time_step);
 
 	if (engine::input::key_pressed(engine::key_codes::KEY_W)) {
-		m_object->set_position(m_object->position() += glm::vec3(0.f, 0.f, -m_speed * (float)time_step));
+		m_object->set_position(m_object->position() += player_front * m_speed * (float)time_step);
 	}
 	else if (engine::input::key_pressed(engine::key_codes::KEY_S)) {
-		m_object->set_position(m_object->position() += glm::vec3(0.f, 0.f, m_speed * (float)time_step));
+		m_object->set_position(m_object->position() -= player_front * m_speed * (float)time_step);
 	}
 	if (engine::input::key_pressed(engine::key_codes::KEY_A)) {
-		m_object->set_position(m_object->position() += glm::vec3(-m_speed * (float)time_step, 0.f, 0.f));
+		m_object->set_position(m_object->position() -= player_right * m_speed * (float)time_step);
 	}
 	else if (engine::input::key_pressed(engine::key_codes::KEY_D)) {
-		m_object->set_position(m_object->position() += glm::vec3(m_speed * (float)time_step, 0.f, 0.f));
+		m_object->set_position(m_object->position() += player_right * m_speed * (float)time_step);
 	}
+
+	//third person movement?
+	//if (engine::input::key_pressed(engine::key_codes::KEY_W)) {
+	//	m_object->set_position(m_object->position() += glm::vec3(0.f, 0.f, -m_speed * (float)time_step));
+	//}
+	//else if (engine::input::key_pressed(engine::key_codes::KEY_S)) {
+	//	m_object->set_position(m_object->position() -= glm::vec3(0.f, 0.f, m_speed * (float)time_step));
+	//}
+	//if (engine::input::key_pressed(engine::key_codes::KEY_A)) {
+	//	m_object->set_position(m_object->position() += glm::vec3(-m_speed * (float)time_step, 0.f, 0.f));
+	//}
+	//else if (engine::input::key_pressed(engine::key_codes::KEY_D)) {
+	//	m_object->set_position(m_object->position() += glm::vec3(m_speed * (float)time_step, 0.f, 0.f));
+	//}
 
 	//JUMP to be implemented down the line
 
@@ -61,14 +89,6 @@ void player::on_update(const engine::timestep& time_step)
 		{
 			m_object->animated_mesh()->switch_root_movement(false);
 			m_object->animated_mesh()->switch_animation(m_object->animated_mesh() -> default_animation());
-
-			state = Idling;
- 			if (last_state == Sprinting) {
-				sprint(true);
-			}
-			else if (last_state == Walking) {
-				sprint(false);
-			}
 		}
 	}
 
@@ -76,20 +96,12 @@ void player::on_update(const engine::timestep& time_step)
 }
 
 void player::turn(float angle) {
-
-	//Turns model to face where player is looking - will revisit this later down the line..
-	//static const float angle_limit = 1.0f;
-	//if (angle > angle_limit) {
-	//	angle = angle_limit;
-	//}
-	//if (angle < -angle_limit) {
-	//	angle = -angle_limit;
-	//}
-
 	m_object->set_forward(glm::rotate(m_object->forward(), angle, glm::vec3(0.f, 1.f, 0.f)));
 }
 
 void player::update_first_person_camera(engine::perspective_camera& camera) {
+
+	isFirstPerson = true;
 
 	glm::vec3 mousepos = process_mouse();
 	
@@ -101,12 +113,12 @@ void player::update_first_person_camera(engine::perspective_camera& camera) {
 
 	camera.set_view_matrix(cam_pos, mousepos, mousepos);
 
-	//Turns model to face where player is looking -- will revisit this later down the line..
-	//turn(mousepos.x * -0.05f);
 
 }
 
 void player::update_third_person_camera(engine::perspective_camera& camera) {
+
+	isFirstPerson = false;
 
 	glm::vec3 mousepos = process_mouse();
 	mousepos.x *= 2.f;
@@ -124,6 +136,7 @@ void player::update_third_person_camera(engine::perspective_camera& camera) {
 
 glm::vec3 player::process_mouse() {
 
+	//from lab
 	auto [mouse_delta_x, mouse_delta_y] = engine::input::mouse_position();
 	mouse_delta_x *= 0.1f;
 	mouse_delta_y *= 0.1f;
@@ -146,6 +159,19 @@ glm::vec3 player::process_mouse() {
 	mousepos.y = sin(pitch_radians);
 	mousepos.z = sin(yaw_radians) * cos(pitch_radians);
 
+	//for player positional usage
+	player_front = mousepos;
+	//prevents from going up by camera direct
+	player_front.y = 0.f;
+
+	player_front = glm::normalize(player_front);
+
+	//// Also re-calculate the Right and Up vector
+	//// Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+	player_right = glm::normalize(glm::cross(player_front, glm::vec3(0.f,1.f,0.f)));
+	player_up = glm::normalize(glm::cross(player_right, player_front));
+
+	//player_front = mousepos;
 	return mousepos;
 }
 
@@ -153,29 +179,23 @@ void player::jump() {
 
 	m_object->animated_mesh()->switch_root_movement(true);
 	m_object->animated_mesh()->switch_animation(3);
-	m_speed = 0.0f;
-	animation_speed = 1.f;
+	animation_speed = 1.5f;
 
-	m_timer = (m_object->animated_mesh()->animations().at(3)->mDuration);
+	m_timer = (m_object->animated_mesh()->animations().at(3)->mDuration * 0.5f);
 
-	last_state = state;
-	state = Jumping;
 }
 
 void player::sprint(const bool& activateSprint) {
 
-	if (activateSprint && state != Jumping) {
-		state = Sprinting;
+	if (activateSprint) {
 		m_speed = 2.0f;
 		animation_speed = 1.5f;
 	}
-	else if(state != Jumping) {
-		state = Walking;
+	else {
+
 		m_speed = 1.0f;
 		animation_speed = 1.f;
 	}
-	else if (state == Jumping) {
-		last_state = Walking;
-	}
+
 
 }

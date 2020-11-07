@@ -248,7 +248,7 @@ example_layer::example_layer()
 	m_skinned_mesh->switch_animation(1);
 
 	//Load Intro Screen Texture
-	m_intro_screen = intro_screen::create("assets/textures/introTemp.png", 1.6f, 0.9f);
+	m_intro_screen = intro_screen::create("assets/textures/tempmenu.jpg", 1.6f, 0.9f);
 }
 
 example_layer::~example_layer() {}
