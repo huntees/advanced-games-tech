@@ -109,9 +109,9 @@ void player::update_first_person_camera(engine::perspective_camera& camera) {
 void player::update_third_person_camera(engine::perspective_camera& camera) {
 
 	glm::vec3 mousepos = process_mouse();
-	mousepos.x *= 3.f;
-	mousepos.y *= 3.f;
-	mousepos.z *= 3.f;
+	mousepos.x *= 2.f;
+	mousepos.y *= 2.f;
+	mousepos.z *= 2.f;
 	 
 	glm::vec3 cam_pos = m_object->position() - mousepos;
 	cam_pos.y += 1.5f;

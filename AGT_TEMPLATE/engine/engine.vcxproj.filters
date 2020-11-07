@@ -1371,6 +1371,12 @@
     <ClInclude Include="src\engine\entities\shapes\quad.h">
       <Filter>src\engine\entities\shapes</Filter>
     </ClInclude>
+    <ClInclude Include="src\engine\entities\shapes\hexagon.h">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClInclude>
+    <ClInclude Include="src\engine\entities\shapes\bench.h">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\engine\core\application.cpp">
@@ -1503,6 +1509,12 @@
       <Filter>src\engine\entities\shapes</Filter>
     </ClCompile>
     <ClCompile Include="src\engine\entities\shapes\quad.cpp">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\entities\shapes\hexagon.cpp">
+      <Filter>src\engine\entities\shapes</Filter>
+    </ClCompile>
+    <ClCompile Include="src\engine\entities\shapes\bench.cpp">
       <Filter>src\engine\entities\shapes</Filter>
     </ClCompile>
   </ItemGroup>

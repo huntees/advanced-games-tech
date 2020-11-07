@@ -9,16 +9,16 @@
 #include "engine/core/input.h"
 #include "engine/key_codes.h"
 
-example_layer::example_layer() 
-    :m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f), 
-    m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())
+example_layer::example_layer()
+	:m_2d_camera(-1.6f, 1.6f, -0.9f, 0.9f),
+	m_3d_camera((float)engine::application::window().width(), (float)engine::application::window().height())
 
 
 {
 
-    // Hide the mouse and lock it inside the window
-    //engine::input::anchor_mouse(true);
-    engine::application::window().hide_mouse_cursor();
+	// Hide the mouse and lock it inside the window
+	//engine::input::anchor_mouse(true);
+	engine::application::window().hide_mouse_cursor();
 
 	// Initialise audio and play background music
 	m_audio_manager = engine::audio_manager::instance();
@@ -62,7 +62,7 @@ example_layer::example_layer()
 	std::dynamic_pointer_cast<engine::gl_shader>(text_shader)->bind();
 	std::dynamic_pointer_cast<engine::gl_shader>(text_shader)->set_uniform("projection",
 		glm::ortho(0.f, (float)engine::application::window().width(), 0.f,
-		(float)engine::application::window().height()));
+			(float)engine::application::window().height()));
 	m_material = engine::material::create(1.0f, glm::vec3(1.0f, 0.1f, 0.07f),
 		glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 
@@ -77,7 +77,7 @@ example_layer::example_layer()
 		  engine::texture_2d::create("assets/textures/skybox/negy.jpg", true)
 		});
 
-	
+
 
 	engine::ref<engine::skinned_mesh> m_skinned_mesh = engine::skinned_mesh::create("assets/models/animated/mannequin/free3Dmodel.dae");
 	m_skinned_mesh->LoadAnimationFile("assets/models/animated/mannequin/walking.dae");
@@ -88,7 +88,7 @@ example_layer::example_layer()
 
 	engine::game_object_properties mannequin_props;
 	mannequin_props.animated_mesh = m_skinned_mesh;
-	mannequin_props.scale = glm::vec3(1.f/ glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
+	mannequin_props.scale = glm::vec3(1.f / glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
 	mannequin_props.position = glm::vec3(3.0f, 0.5f, -5.0f);
 	mannequin_props.type = 0;
 	mannequin_props.bounding_shape = m_skinned_mesh->size() / 2.f * mannequin_props.scale.x;
@@ -200,11 +200,12 @@ example_layer::example_layer()
 	tetrahedron_vertices.push_back(glm::vec3(-10.f, 0.f, -10.f)); //2
 	tetrahedron_vertices.push_back(glm::vec3(10.f, 0.f, -10.f)); //3
 
+	//create tetrahedron mesh shape
 	engine::ref<engine::tetrahedron> tetrahedron_shape = engine::tetrahedron::create(tetrahedron_vertices);
 	engine::game_object_properties tetrahedron_props;
 	tetrahedron_props.position = { 0.f, 0.5f, -20.f };
 
-	//texture
+	//load tetrahedron texture
 	std::vector<engine::ref<engine::texture_2d>> tetrahedron_textures =
 	{ engine::texture_2d::create("assets/textures/Skyscraper.bmp", false) };
 
@@ -220,6 +221,20 @@ example_layer::example_layer()
 		glm::vec3(1.0f, 0.5f, 0.0f),
 		glm::vec3(0.5f, 0.5f, 0.5f),
 		0.3f);
+
+	// Load bench
+	engine::ref<engine::bench> bench_shape = engine::bench::create();
+	engine::game_object_properties bench_props;
+	bench_props.position = { 0.f, 0.9f, 0.f };
+
+	std::vector<engine::ref<engine::texture_2d>> bench_textures =
+	{ engine::texture_2d::create("assets/textures/plastic.jpg", false) };
+	bench_props.textures = bench_textures;
+
+	bench_props.scale = glm::vec3(0.8f);
+	bench_props.meshes = { bench_shape->mesh() };
+	m_bench = engine::game_object::create(bench_props);
+
 
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
@@ -238,7 +253,7 @@ example_layer::example_layer()
 
 example_layer::~example_layer() {}
 
-void example_layer::on_update(const engine::timestep& time_step) 
+void example_layer::on_update(const engine::timestep& time_step)
 {
 	m_intro_screen->on_update(time_step);
 
@@ -251,7 +266,7 @@ void example_layer::on_update(const engine::timestep& time_step)
 			camSwitchTimer = 0.15f;
 			m_3d_camera.reset_camera();
 		}
-		else if (camSwitchDelayReady){
+		else if (camSwitchDelayReady) {
 
 			firstPerson = true;
 			camSwitchDelayReady = false;
@@ -285,17 +300,17 @@ void example_layer::on_update(const engine::timestep& time_step)
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
- 	check_bounce();
+	check_bounce();
 
-} 
+}
 
-void example_layer::on_render() 
+void example_layer::on_render()
 {
-    engine::render_command::clear_color({0.2f, 0.3f, 0.3f, 1.0f}); 
-    engine::render_command::clear();
+	engine::render_command::clear_color({ 0.2f, 0.3f, 0.3f, 1.0f });
+	engine::render_command::clear();
 
-    //const auto textured_shader = engine::renderer::shaders_library()->get("mesh_static");
-    //engine::renderer::begin_scene(m_3d_camera, textured_shader);
+	//const auto textured_shader = engine::renderer::shaders_library()->get("mesh_static");
+	//engine::renderer::begin_scene(m_3d_camera, textured_shader);
 
 	const auto textured_lighting_shader = engine::renderer::shaders_library()->get("mesh_lighting");
 
@@ -319,6 +334,30 @@ void example_layer::on_render()
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
 
 	engine::renderer::submit(textured_lighting_shader, m_tetrahedron);
+
+	glm::mat4 benchTransform = glm::mat4(1.0f);
+	benchTransform = glm::translate(benchTransform, glm::vec3(9.8f, 0.9f, 0.f));
+	benchTransform = glm::scale(benchTransform, m_bench->scale());
+	engine::renderer::submit(textured_lighting_shader, benchTransform, m_bench);
+
+	glm::mat4 benchTransform2 = glm::mat4(1.0f);
+	benchTransform2 = glm::translate(benchTransform2, glm::vec3(15.8f, 0.9f, 0.f));
+	benchTransform2 = glm::scale(benchTransform2, m_bench->scale());
+	engine::renderer::submit(textured_lighting_shader, benchTransform2, m_bench);
+
+	float bench = 0;
+	for (int i = 0; i <= 3; ++i) {
+
+		if (i > 1) {
+			bench = 7.f;
+		}
+
+		glm::mat4 benchTransform3 = glm::mat4(1.0f);
+		benchTransform3 = glm::translate(benchTransform3, glm::vec3(-12.3f, 0.9f, -10.7f + (i * 5.7) + bench));
+		benchTransform3 = glm::rotate(benchTransform3, m_bench->rotation_amount() + glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+		benchTransform3 = glm::scale(benchTransform3, m_bench->scale());
+		engine::renderer::submit(textured_lighting_shader, benchTransform3, m_bench);
+	}
 
 	//office trees
 	for (int i = 0; i <= 3; ++i) {
@@ -350,14 +389,14 @@ void example_layer::on_render()
 	tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
 	tree_transform = glm::scale(tree_transform, m_tree->scale());
 	engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
-	
+
 	glm::mat4 cow_transform(1.0f);
 	cow_transform = glm::translate(cow_transform, m_cow->position());
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
 
-	float jeep_x_rotation = 90.f * (glm::pi<float>()/180.f); //90 degrees multiplied by pi/180 giving radians
+	float jeep_x_rotation = 90.f * (glm::pi<float>() / 180.f); //90 degrees multiplied by pi/180 giving radians
 
 	glm::mat4 jeep_transform(1.0f);
 	jeep_transform = glm::translate(jeep_transform, m_jeep->position());
@@ -372,13 +411,13 @@ void example_layer::on_render()
 	engine::renderer::submit(textured_lighting_shader, pizza_transform, m_pizza);
 
 	glm::mat4 jet_transform(1.0f);
-	jet_transform = glm::translate(jet_transform, m_jet->position());
+	jet_transform = glm::translate(jet_transform, glm::vec3(14.f, 1.5f, 30.f));
 	jet_transform = glm::rotate(jet_transform, m_jet->rotation_amount() + glm::radians(-45.f), glm::vec3(0.f, 1.f, 0.f));
 	jet_transform = glm::scale(jet_transform, m_jet->scale());
 	engine::renderer::submit(textured_lighting_shader, jet_transform, m_jet);
 
 	glm::mat4 jet_transform2(1.0f);
-	jet_transform2 = glm::translate(jet_transform2, glm::vec3(14.f, 1.5f, 18.f));
+	jet_transform2 = glm::translate(jet_transform2, glm::vec3(14.f, 1.5f, 38.f));
 	jet_transform2 = glm::rotate(jet_transform2, m_jet->rotation_amount() + glm::radians(-90.f), glm::vec3(0.f, 1.f, 0.f));
 	jet_transform2 = glm::scale(jet_transform2, m_jet->scale());
 	engine::renderer::submit(textured_lighting_shader, jet_transform2, m_jet);
@@ -413,7 +452,7 @@ void example_layer::on_render()
 	skyscrapers_transform2 = glm::scale(skyscrapers_transform2, m_skyscrapers->scale());
 	engine::renderer::submit(textured_lighting_shader, skyscrapers_transform2, m_skyscrapers);
 
-    engine::renderer::end_scene();
+	engine::renderer::end_scene();
 
 	// Set up material shader. (does not render textures, renders materials instead)
 	const auto material_shader = engine::renderer::shaders_library()->get("mesh_material");
@@ -439,7 +478,7 @@ void example_layer::on_render()
 
 	// Render text
 	const auto text_shader = engine::renderer::shaders_library()->get("text_2D");
-	m_text_manager->render_text(text_shader, "Orange Text", 10.f, (float)engine::application::window().height()-25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
+	m_text_manager->render_text(text_shader, "Orange Text", 10.f, (float)engine::application::window().height() - 25.f, 0.5f, glm::vec4(1.f, 0.5f, 0.f, 1.f));
 
 	//----------------------------------------------------2D Cam-------------------------------------------------------------------------------
 	//const auto hud_lighting_shader = engine::renderer::shaders_library()->get("mesh_lighting");
@@ -452,17 +491,17 @@ void example_layer::on_render()
 
 	engine::renderer::end_scene();
 	//----------------------------------------------------2D Cam End--------------------------------------------------------------------------
-} 
+}
 
-void example_layer::on_event(engine::event& event) 
-{ 
-    if(event.event_type() == engine::event_type_e::key_pressed) 
-    { 
-        auto& e = dynamic_cast<engine::key_pressed_event&>(event); 
-        if(e.key_code() == engine::key_codes::KEY_TAB) 
-        { 
-            engine::render_command::toggle_wireframe();
-        }
+void example_layer::on_event(engine::event& event)
+{
+	if (event.event_type() == engine::event_type_e::key_pressed)
+	{
+		auto& e = dynamic_cast<engine::key_pressed_event&>(event);
+		if (e.key_code() == engine::key_codes::KEY_TAB)
+		{
+			engine::render_command::toggle_wireframe();
+		}
 		if (e.key_code() == engine::key_codes::KEY_LEFT_SHIFT)
 		{
 			m_player.sprint(true);
@@ -476,7 +515,7 @@ void example_layer::on_event(engine::event& event)
 			m_intro_screen->deactivate();
 		}
 
-    }
+	}
 
 	if (event.event_type() == engine::event_type_e::key_released)
 	{

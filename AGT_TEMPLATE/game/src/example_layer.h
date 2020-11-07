@@ -6,12 +6,12 @@
 class example_layer : public engine::layer
 {
 public:
-    example_layer();
+	example_layer();
 	~example_layer();
 
-    void on_update(const engine::timestep& time_step) override;
-    void on_render() override; 
-    void on_event(engine::event& event) override;
+	void on_update(const engine::timestep& time_step) override;
+	void on_render() override;
+	void on_event(engine::event& event) override;
 
 private:
 	player m_player{};
@@ -31,6 +31,8 @@ private:
 	engine::ref<engine::game_object>	m_office{};
 	engine::ref<engine::game_object>	m_sanfran{};
 	engine::ref<engine::game_object>	m_skyscrapers{};
+	engine::ref<engine::game_object>    m_hexagon{};
+	engine::ref<engine::game_object>    m_bench{};
 
 	engine::ref<engine::material>		m_material{};
 	engine::ref<engine::material>		m_tetrahedron_material{};
@@ -44,8 +46,8 @@ private:
 	float								m_prev_sphere_y_vel = 0.f;
 	engine::ref<engine::text_manager>	m_text_manager{};
 
-    engine::orthographic_camera       m_2d_camera; 
-    engine::perspective_camera        m_3d_camera;
+	engine::orthographic_camera       m_2d_camera;
+	engine::perspective_camera        m_3d_camera;
 
 	engine::ref<intro_screen>	m_intro_screen{};
 
