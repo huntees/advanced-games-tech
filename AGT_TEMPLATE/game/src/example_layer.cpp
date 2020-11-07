@@ -235,6 +235,19 @@ example_layer::example_layer()
 	bench_props.meshes = { bench_shape->mesh() };
 	m_bench = engine::game_object::create(bench_props);
 
+	// Load hexagon
+	engine::ref<engine::hexagon> hexagon_shape = engine::hexagon::create();
+	engine::game_object_properties hexagon_props;
+	hexagon_props.position = { 0.f, 0.f, 0.f };
+
+	std::vector<engine::ref<engine::texture_2d>> hexagon_textures =
+	{ engine::texture_2d::create("assets/textures/manhole.jpg", false) };
+	hexagon_props.textures = hexagon_textures;
+
+	hexagon_props.scale = glm::vec3(0.35f);
+	hexagon_props.meshes = { hexagon_shape->mesh() };
+	m_hexagon = engine::game_object::create(hexagon_props);
+
 
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
@@ -359,6 +372,18 @@ void example_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, benchTransform3, m_bench);
 	}
 
+	glm::mat4 hexagontransform = glm::mat4(1.0f);
+	hexagontransform = glm::translate(hexagontransform, glm::vec3(13.8f, 0.51f, 5.f));
+	hexagontransform = glm::rotate(hexagontransform, m_hexagon->rotation_amount() + glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
+	hexagontransform = glm::scale(hexagontransform, m_hexagon->scale());
+	engine::renderer::submit(textured_lighting_shader, hexagontransform, m_hexagon);
+
+	glm::mat4 hexagontransform2 = glm::mat4(1.0f);
+	hexagontransform2 = glm::translate(hexagontransform2, glm::vec3(13.8f, 0.51f, 15.f));
+	hexagontransform2 = glm::rotate(hexagontransform2, m_hexagon->rotation_amount() + glm::radians(270.f), glm::vec3(1.f, 0.f, 0.f));
+	hexagontransform2 = glm::scale(hexagontransform2, m_hexagon->scale());
+	engine::renderer::submit(textured_lighting_shader, hexagontransform2, m_hexagon);
+
 	//office trees
 	for (int i = 0; i <= 3; ++i) {
 
@@ -384,31 +409,37 @@ void example_layer::on_render()
 		engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
 	}
 
-	glm::mat4 tree_transform(1.0f);
-	tree_transform = glm::translate(tree_transform, glm::vec3(4.f, 0.5, -5.0f));
-	tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
-	tree_transform = glm::scale(tree_transform, m_tree->scale());
-	engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
+	//glm::mat4 tree_transform(1.0f);
+	//tree_transform = glm::translate(tree_transform, glm::vec3(4.f, 0.5, -5.0f));
+	//tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
+	//tree_transform = glm::scale(tree_transform, m_tree->scale());
+	//engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
 
 	glm::mat4 cow_transform(1.0f);
-	cow_transform = glm::translate(cow_transform, m_cow->position());
-	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
+	cow_transform = glm::translate(cow_transform, glm::vec3(9.3f, 0.5f, -0.2f));
+	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount() + glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
 
 	float jeep_x_rotation = 90.f * (glm::pi<float>() / 180.f); //90 degrees multiplied by pi/180 giving radians
 
 	glm::mat4 jeep_transform(1.0f);
-	jeep_transform = glm::translate(jeep_transform, m_jeep->position());
+	jeep_transform = glm::translate(jeep_transform, m_jeep->position() + glm::vec3(-4.f, 0.f, 0.f));
 	jeep_transform = glm::rotate(jeep_transform, m_jeep->rotation_amount(), m_jeep->rotation_axis());
 	jeep_transform = glm::scale(jeep_transform, m_jeep->scale());
 	engine::renderer::submit(textured_lighting_shader, jeep_transform, m_jeep);
 
 	glm::mat4 pizza_transform(1.0f);
-	pizza_transform = glm::translate(pizza_transform, m_pizza->position());
-	pizza_transform = glm::rotate(pizza_transform, m_pizza->rotation_amount() + glm::radians(90.f), glm::vec3(0.f, 1.f, 0.f));
+	pizza_transform = glm::translate(pizza_transform, glm::vec3(10.2f, 0.92f, -0.2f));
+	pizza_transform = glm::rotate(pizza_transform, m_pizza->rotation_amount() + glm::radians(120.f), glm::vec3(0.f, 1.f, 0.f));
 	pizza_transform = glm::scale(pizza_transform, m_pizza->scale());
 	engine::renderer::submit(textured_lighting_shader, pizza_transform, m_pizza);
+
+	glm::mat4 pizza_transform2(1.0f);
+	pizza_transform2 = glm::translate(pizza_transform2, glm::vec3(11.5f, 0.92f, -0.2f));
+	pizza_transform2 = glm::rotate(pizza_transform2, m_pizza->rotation_amount() + glm::radians(57.f), glm::vec3(0.f, 1.f, 0.f));
+	pizza_transform2 = glm::scale(pizza_transform2, m_pizza->scale());
+	engine::renderer::submit(textured_lighting_shader, pizza_transform2, m_pizza);
 
 	glm::mat4 jet_transform(1.0f);
 	jet_transform = glm::translate(jet_transform, glm::vec3(14.f, 1.5f, 30.f));
