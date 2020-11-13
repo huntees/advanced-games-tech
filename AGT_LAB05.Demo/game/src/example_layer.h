@@ -22,6 +22,7 @@ private:
 	engine::ref<engine::game_object>	m_mannequin{};
 
 	engine::ref<engine::material>		m_material{};
+	engine::ref<engine::material>		m_lightsource_material{};
 
 	engine::ref<engine::grid>			m_grid{};
 
@@ -36,4 +37,10 @@ private:
 
     engine::orthographic_camera       m_2d_camera; 
     engine::perspective_camera        m_3d_camera;
+
+	engine::PointLight m_pointLight;
+	uint32_t num_point_lights = 1;
+
+	engine::SpotLight m_spotLight;
+	uint32_t num_spot_lights = 1;
 };

@@ -36,6 +36,21 @@ example_layer::example_layer()
 	m_directionalLight.DiffuseIntensity = 0.6f;
 	m_directionalLight.Direction = glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
 
+	m_pointLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_pointLight.AmbientIntensity = 0.25f;
+	m_pointLight.DiffuseIntensity = 0.6f;
+	m_pointLight.Position = glm::vec3(0.f, 2.f, 0.f);
+
+	m_spotLight.Color = glm::vec3(1.0f, 1.0f, 1.0f);
+	m_spotLight.AmbientIntensity = 0.25f;
+	m_spotLight.DiffuseIntensity = 0.6f;
+	m_spotLight.Position = glm::vec3(-5.f, 2.f, 0.f);
+	m_spotLight.Direction = glm::normalize(glm::vec3(1.f, -1.f, 0.f));
+	m_spotLight.Cutoff = 0.5f;
+	m_spotLight.Attenuation.Constant = 1.0f;
+	m_spotLight.Attenuation.Linear = 0.1f;
+	m_spotLight.Attenuation.Exp = 0.01f;
+
 	// set color texture unit
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->bind();
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("gColorMap", 0);
@@ -46,7 +61,7 @@ example_layer::example_layer()
 	std::dynamic_pointer_cast<engine::gl_shader>(animated_mesh_shader)->set_uniform("transparency", 1.0f);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh__material_shader)->bind();
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh__material_shader)->set_uniform("lighting_on", true);
-	m_directionalLight.submit(mesh__material_shader);
+	//m_directionalLight.submit(mesh__material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh__material_shader)->set_uniform("gMatSpecularIntensity", 1.f);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh__material_shader)->set_uniform("gSpecularPower", 10.f);
 	std::dynamic_pointer_cast<engine::gl_shader>(mesh_lighting_shader)->bind();
@@ -62,6 +77,8 @@ example_layer::example_layer()
 		(float)engine::application::window().height()));
 	m_material = engine::material::create(1.0f, glm::vec3(1.0f, 0.1f, 0.07f),
 		glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
+
+	m_lightsource_material = engine::material::create(1.0f, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 
 
 	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
@@ -187,6 +204,12 @@ void example_layer::on_render()
 
 	m_grid->on_render(textured_lighting_shader);
 
+	std::dynamic_pointer_cast<engine::gl_shader>(textured_lighting_shader) -> set_uniform("gNumSpotLights", (int)num_spot_lights);
+	m_spotLight.submit(textured_lighting_shader, 0);
+
+	m_terrain->textures().at(0)->bind();
+	engine::renderer::submit(textured_lighting_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.0f), glm::vec3(0, 2, 0)));
+
 	//glm::mat4 tree_transform(1.0f);
 	//tree_transform = glm::translate(tree_transform, glm::vec3(4.f, 0.5, -5.0f));
 	//tree_transform = glm::rotate(tree_transform, m_tree->rotation_amount(), m_tree->rotation_axis());
@@ -208,7 +231,33 @@ void example_layer::on_render()
 	m_material->submit(material_shader);
 	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("gEyeWorldPos", m_3d_camera.position());
 
-	engine::renderer::submit(material_shader, m_ball);
+	//engine::renderer::submit(material_shader, m_ball);
+
+	//-----------------------------------------------------------ball loop----------------------------------------------------------
+
+	//std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("gNumPointLights", (int)num_point_lights);
+	//m_pointLight.submit(material_shader, 0);
+	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("gNumSpotLights", (int)num_spot_lights);
+	m_spotLight.submit(material_shader, 0);
+
+	for (int x = -7; x < 8; x++) {
+		for (int z = -7; z < 8; z++) {
+			glm::mat4 ball_transform(1.0f);
+			ball_transform = glm::translate(ball_transform, glm::vec3(x, 0.f, z));
+			engine::renderer::submit(material_shader, m_ball->meshes().at(0), ball_transform);
+		}
+	}
+	 
+	
+	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("lighting_on", false);
+
+	//m_pointLight ball
+	m_lightsource_material->submit(material_shader);
+	//engine::renderer::submit(material_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.f), m_pointLight.Position));
+	engine::renderer::submit(material_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.f), m_spotLight.Position));
+
+	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("lighting_on", true);
+	
 
 	engine::renderer::end_scene();
 
@@ -236,6 +285,14 @@ void example_layer::on_event(engine::event& event)
         { 
             engine::render_command::toggle_wireframe();
         }
+		if (e.key_code() == engine::key_codes::KEY_3) {
+			//m_pointLight.Position -= glm::vec3(0.f, 0.2f, 0.f);
+			m_spotLight.Position -= glm::vec3(0.2f, 0.f, 0.f);
+		}
+		else if (e.key_code() == engine::key_codes::KEY_4) {
+			//m_pointLight.Position += glm::vec3(0.f, 0.2f, 0.f);
+			m_spotLight.Position += glm::vec3(0.2f, 0.f, 0.f);
+		}
     } 
 }
 
