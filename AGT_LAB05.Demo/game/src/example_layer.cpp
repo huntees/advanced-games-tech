@@ -80,6 +80,8 @@ example_layer::example_layer()
 
 	m_lightsource_material = engine::material::create(1.0f, glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 0.1f, 0.07f), glm::vec3(0.5f, 0.5f, 0.5f), 1.0f);
 
+	m_ballistic_material = engine::material::create(1.0f, glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f), 1.0f);
+
 
 	// Skybox texture from http://www.vwall.it/wp-content/plugins/canvasio3dpro/inc/resource/cubeMaps/
 	m_skybox = engine::skybox::create(50.f,
@@ -152,6 +154,10 @@ example_layer::example_layer()
 	sphere_props.mass = 0.000001f;
 	m_ball = engine::game_object::create(sphere_props);
 
+
+	//ballistic
+	m_ballistic.initialise(engine::game_object::create(sphere_props));
+
 	m_game_objects.push_back(m_terrain);
 	//m_game_objects.push_back(m_ball);
 	//m_game_objects.push_back(m_cow);
@@ -169,6 +175,8 @@ example_layer::~example_layer() {}
 void example_layer::on_update(const engine::timestep& time_step) 
 {
     m_3d_camera.on_update(time_step);
+
+	m_ballistic.on_update(time_step);
 
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
@@ -256,8 +264,10 @@ void example_layer::on_render()
 	//engine::renderer::submit(material_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.f), m_pointLight.Position));
 	engine::renderer::submit(material_shader, m_ball->meshes().at(0), glm::translate(glm::mat4(1.f), m_spotLight.Position));
 
+	m_ballistic_material->submit(material_shader);
+	m_ballistic.on_render(material_shader);
+
 	std::dynamic_pointer_cast<engine::gl_shader>(material_shader)->set_uniform("lighting_on", true);
-	
 
 	engine::renderer::end_scene();
 
@@ -292,6 +302,9 @@ void example_layer::on_event(engine::event& event)
 		else if (e.key_code() == engine::key_codes::KEY_4) {
 			//m_pointLight.Position += glm::vec3(0.f, 0.2f, 0.f);
 			m_spotLight.Position += glm::vec3(0.2f, 0.f, 0.f);
+		}
+		if (e.key_code() == engine::key_codes::KEY_5) {
+			m_ballistic.fire(m_3d_camera, 2.0f);
 		}
     } 
 }
