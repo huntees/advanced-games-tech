@@ -133,6 +133,7 @@ example_layer::example_layer()
 	sphere_props.bounding_shape = sphere_shape->size() / 2.0f;
 	sphere_props.restitution = 0.92f;
 	sphere_props.mass = 0.45f;
+	sphere_props.rolling_friction = 0.1f;
 	m_ball = engine::game_object::create(sphere_props);
 
 	m_game_objects.push_back(m_terrain);
@@ -158,7 +159,7 @@ void example_layer::on_update(const engine::timestep& time_step)
 
 	m_football.on_update(time_step);
 
-	//m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
+	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
 	m_mannequin->animated_mesh()->on_update(time_step);
 
