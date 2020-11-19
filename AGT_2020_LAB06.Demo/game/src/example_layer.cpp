@@ -22,6 +22,7 @@ example_layer::example_layer()
 	m_audio_manager->init();
 	m_audio_manager->load_sound("assets/audio/bounce.wav", engine::sound_type::event, "bounce"); // Royalty free sound from freesound.org
 	m_audio_manager->load_sound("assets/audio/DST-impuretechnology.mp3", engine::sound_type::track, "music");  // Royalty free music from http://www.nosoapradio.us/
+	m_audio_manager->load_sound("assets/audio/Kick.wav", engine::sound_type::event, "kick");
 	//m_audio_manager->play("music");
 
 
@@ -247,6 +248,7 @@ void example_layer::on_event(engine::event& event)
         }
 		if (e.key_code() == engine::key_codes::KEY_1)
 		{
+			m_audio_manager->play("kick");
 			m_football.kick(m_3d_camera, 270.0f);
 		}
     } 

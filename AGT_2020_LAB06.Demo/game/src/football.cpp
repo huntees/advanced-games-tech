@@ -17,7 +17,7 @@ void football::initialise(engine::ref<engine::game_object> object)
 void football::kick(const engine::perspective_camera& camera, float kick)
 {
 	m_object->set_velocity(glm::vec3(0.f));
-	m_object->set_acceleration(glm::vec3(0.f, 0.f, 0.f));
+	m_object->set_acceleration(glm::vec3(0.f, -9.8f, 0.f));
 	m_object->set_torque(glm::vec3(0.f));
 	m_object->set_rotation_amount(0.f);
 	m_object->set_rotation_axis(glm::vec3(0.f, 1.f, 0.f));
@@ -26,7 +26,13 @@ void football::kick(const engine::perspective_camera& camera, float kick)
 
 	// Set the ball to the current camera position
 	m_object->set_position(camera.position());
-	m_object->set_velocity(25.0f * camera.front_vector());
+	//m_object->set_velocity(25.0f * camera.front_vector());
+	glm::vec3 force = camera.front_vector() * kick;
+	m_instantaneous_acceleration = force / m_object->mass();
+
+	glm::vec3 torque = glm::vec3(1.f, 0.f, 0.f);
+	torque = torque * (force / 90.0f);
+	m_instantaneous_angular_acceleration = torque / m_rotational_inertia;
 
 	// Determine rotation angles of camera (from Lab 4)
 	m_theta = engine::PI/2.f - acos(camera.front_vector().y);
@@ -38,6 +44,8 @@ void football::on_update(const engine::timestep& time_step)
 	// Update physical quanitities
 	m_last_position = m_object->position();
 
+	m_object->set_velocity(m_object->velocity() + (m_object->acceleration() + m_instantaneous_acceleration) * (float)time_step);
+
 	m_object->set_position(m_object->position()+ m_object->velocity() * (float)time_step);
 
 	glm::vec3 angle = m_object->rotation_axis() * m_object->rotation_amount();
@@ -47,6 +55,8 @@ void football::on_update(const engine::timestep& time_step)
 	{
 		m_object->set_rotation_axis(glm::normalize(angle));
 	}
+
+	m_object->set_angular_velocity(m_object->angular_velocity() + (m_object->torque() + m_instantaneous_angular_acceleration) * (float)time_step);
 
 	// Turn off instantaneous forces if contact time is surpassed
 	if (glm::length(m_instantaneous_acceleration) > 0 && m_contact_time > 0.05) {
@@ -88,6 +98,10 @@ void football::collision_response(float y_plane)
 	if (glm::length(m_object->velocity()) > convergenceThreshold) {
 		// The ball has bounced!  Implement a bounce by flipping the y velocity
 		m_object->set_velocity(glm::vec3(m_object->velocity().x, -m_object->velocity().y, m_object->velocity().z));
+
+		//Diminishes linear and angular velocity by 15%
+		m_object->set_velocity(m_object->velocity() * m_object->restitution());
+		m_object->set_angular_velocity(m_object->angular_velocity() * m_object->restitution());
 	}
 	else {
 		// Velocity of the ball is below a threshold.  Stop the ball. 
