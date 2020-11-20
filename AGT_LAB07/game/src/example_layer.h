@@ -1,6 +1,7 @@
 #pragma once
 #include <engine.h>
 #include "player.h"
+#include "engine/entities/bounding_box.h"
 
 class example_layer : public engine::layer
 {
@@ -39,4 +40,7 @@ private:
 
     engine::orthographic_camera       m_2d_camera; 
     engine::perspective_camera        m_3d_camera;
+
+	engine::bounding_box			  m_player_box;
+	engine::bounding_box			  m_cow_box;
 };
