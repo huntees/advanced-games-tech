@@ -23,8 +23,8 @@ void player::initialise(engine::ref<engine::game_object> object)
 
 void player::on_update(const engine::timestep& time_step)
 {
-	m_object->set_position(m_object->position() += m_object->forward() * m_speed * (float)time_step);
-	m_object->set_rotation_amount(atan2(m_object->forward().x, m_object->forward().z));
+	float down_vel = m_object->velocity().y;
+	m_object->set_velocity(glm::vec3(m_object->forward().x * m_speed, down_vel, m_object -> forward().z * m_speed));
 
 	if (engine::input::key_pressed(engine::key_codes::KEY_1)) // left
 		turn(1.0f * time_step);
@@ -32,6 +32,8 @@ void player::on_update(const engine::timestep& time_step)
 		turn(-1.0f * time_step);
 	else if (engine::input::key_pressed(engine::key_codes::KEY_SPACE)) // space
 		jump();
+	else
+		turn(0.0f);
 
 	if (m_timer > 0.0f)
 	{
@@ -45,11 +47,13 @@ void player::on_update(const engine::timestep& time_step)
 	}
 
 	m_object->animated_mesh()->on_update(time_step);
+
+	m_player_box.on_update(object()->position() - glm::vec3(0.f, object()->offset().y, 0.f) * object()->scale(), object()->rotation_amount(), object()->rotation_axis());
 }
 
 void player::turn(float angle)
 {
-	m_object->set_forward(glm::rotate(m_object->forward(), angle, glm::vec3(0.f, 1.f, 0.f)));
+	m_object->set_angular_velocity(glm::vec3(0.f, angle * 100.f, 0.f));
 }
 
 void player::update_camera(engine::perspective_camera& camera)

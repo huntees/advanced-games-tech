@@ -1,5 +1,6 @@
 #pragma once
 #include <engine.h>
+#include "engine/entities/bounding_box_bullet.h"
 
 class player
 {
@@ -17,11 +18,16 @@ public:
 
 	void jump();
 
+	void set_box(float width, float height, float depth, glm::vec3 position) { m_player_box.set_box(width, height, depth, position);}
+	bounding_box& getBox() { return m_player_box; };
+
 private:
 	float m_speed{ 0.f };
 	float m_timer;
 
 	engine::ref< engine::game_object> m_object;
+
+	bounding_box m_player_box;
 };
 
 

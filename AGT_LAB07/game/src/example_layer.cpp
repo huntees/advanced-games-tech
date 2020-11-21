@@ -90,12 +90,19 @@ example_layer::example_layer()
 
 	engine::game_object_properties mannequin_props;
 	mannequin_props.animated_mesh = m_skinned_mesh;
-	mannequin_props.scale = glm::vec3(1.f/ glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
-	mannequin_props.position = glm::vec3(3.0f, 0.5f, -5.0f);
+	mannequin_props.scale = glm::vec3(1.f / glm::max(m_skinned_mesh->size().x, glm::max(m_skinned_mesh->size().y, m_skinned_mesh->size().z)));
+	mannequin_props.position = glm::vec3(3.0f, 1.5f, -5.0f);
+	mannequin_props.rotation_amount = engine::PI;
+	mannequin_props.rotation_axis = glm::vec3(0.f, 1.f, 0.f);
 	mannequin_props.type = 0;
-	mannequin_props.bounding_shape = m_skinned_mesh->size() / 2.f * mannequin_props.scale.x;
+	mannequin_props.bounding_shape = glm::vec3(m_skinned_mesh->size().x / 4.f, m_skinned_mesh->size().y / 2.f, m_skinned_mesh->size().x / 4.f);
+	mannequin_props.friction = 0.0f;
 	m_mannequin = engine::game_object::create(mannequin_props);
+	m_mannequin->set_offset(m_skinned_mesh->offset());
 	m_player.initialise(m_mannequin);
+	m_player.set_box(mannequin_props.bounding_shape.x * 2.f * mannequin_props.scale.x, mannequin_props.bounding_shape.y * 2.f * mannequin_props.scale.x,
+		mannequin_props.bounding_shape.z * 2.f * mannequin_props.scale.x, mannequin_props.position);
+
 
 	// Load the terrain texture and create a terrain mesh. Create a terrain object. Set its properties
 	std::vector<engine::ref<engine::texture_2d>> terrain_textures = { engine::texture_2d::create("assets/textures/terrain.bmp", false) };
@@ -115,10 +122,14 @@ example_layer::example_layer()
 	cow_props.meshes = cow_model->meshes();
 	cow_props.textures = cow_model->textures();
 	float cow_scale = 1.f / glm::max(cow_model->size().x, glm::max(cow_model->size().y, cow_model->size().z));
-	cow_props.position = { -4.f,0.5f, -5.f };
+	cow_props.position = { 0.f,2.f, 0.f };
 	cow_props.scale = glm::vec3(cow_scale);
-	cow_props.bounding_shape = cow_model->size() / 2.f * cow_scale;
+	cow_props.bounding_shape = cow_model->size() / 2.f;
+	cow_props.type = 0;
 	m_cow = engine::game_object::create(cow_props);
+	m_cow->set_offset(cow_model->offset());
+	m_cow_box.set_box(cow_props.bounding_shape.x * 2.f * cow_scale, cow_props.bounding_shape.y * 2.f * cow_scale, cow_props.bounding_shape.z * 2.f
+		* cow_scale, cow_props.position - glm::vec3(0.f, m_cow->offset().y, 0.f) * m_cow->scale());
 
 	// Load the jeep model. Create a jeep object. Set its properties
 	engine::ref <engine::model> jeep_model = engine::model::create("assets/models/static/jeep1.obj");
@@ -143,15 +154,17 @@ example_layer::example_layer()
 	tree_props.scale = glm::vec3(tree_scale);
 	m_tree = engine::game_object::create(tree_props);
 
-	engine::ref<engine::sphere> sphere_shape = engine::sphere::create(10, 20, 0.5f);
+	float radius = 0.5f;
+	engine::ref<engine::sphere> sphere_shape = engine::sphere::create(10, 20, radius);
 	engine::game_object_properties sphere_props;
-	sphere_props.position = { 0.f, 5.f, -5.f };
+	sphere_props.position = { 0.f, 5.f, 0.f };
 	sphere_props.meshes = { sphere_shape->mesh() };
 	sphere_props.type = 1;
-	sphere_props.bounding_shape = glm::vec3(0.5f);
+	sphere_props.bounding_shape = glm::vec3(radius);
 	sphere_props.restitution = 0.92f;
-	sphere_props.mass = 0.000001f;
+	sphere_props.mass = 0.1f;
 	m_ball = engine::game_object::create(sphere_props);
+
 
 	std::vector<glm::vec3> tetrahedron_vertices;
 	tetrahedron_vertices.push_back(glm::vec3(0.f, 10.f, 0.f));	//0
@@ -170,9 +183,10 @@ example_layer::example_layer()
 
 	m_game_objects.push_back(m_terrain);
 	m_game_objects.push_back(m_ball);
-	//m_game_objects.push_back(m_cow);
+	m_game_objects.push_back(m_cow);
 	//m_game_objects.push_back(m_tree);
 	//m_game_objects.push_back(m_pickup);
+	m_game_objects.push_back(m_mannequin);
 	m_physics_manager = engine::bullet_manager::create(m_game_objects);
 
 	m_text_manager = engine::text_manager::create();
@@ -188,9 +202,24 @@ void example_layer::on_update(const engine::timestep& time_step)
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
 
 	m_player.on_update(time_step);
+
+	m_cow_box.on_update(m_cow->position() - glm::vec3(0.f, m_cow->offset().y, 0.f) *
+		m_cow->scale(), m_cow->rotation_amount(), m_cow->rotation_axis());
+
 	m_player.update_camera(m_3d_camera);
 
 	check_bounce();
+
+	if (m_ball->is_colliding() && m_ball->collision_objects().size() > 1)
+	{
+		m_material->set_ambient(glm::vec3(0.f, 1.f, 0.f));
+		m_material->set_diffuse(glm::vec3(0.f, 1.f, 0.f));
+	}
+	else {
+		m_material->set_ambient(glm::vec3(1.f, 0.1f, 0.07f));
+		m_material->set_diffuse(glm::vec3(1.f, 0.1f, 0.07f));
+
+	}
 } 
 
 void example_layer::on_render() 
@@ -218,6 +247,9 @@ void example_layer::on_render()
 
 	engine::renderer::submit(textured_lighting_shader, m_terrain);
 
+	m_player.getBox().on_render(2.5f, 0.f, 0.f, textured_lighting_shader);
+	m_cow_box.on_render(2.5f, 0.f, 0.f, textured_lighting_shader);
+
 	engine::renderer::submit(textured_lighting_shader, m_tetrahedron);
 
 	glm::mat4 tree_transform(1.0f);
@@ -227,7 +259,7 @@ void example_layer::on_render()
 	engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
 	
 	glm::mat4 cow_transform(1.0f);
-	cow_transform = glm::translate(cow_transform, m_cow->position());
+	cow_transform = glm::translate(cow_transform, m_cow->position() - m_cow->offset() * m_cow -> scale());
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
@@ -276,6 +308,10 @@ void example_layer::on_event(engine::event& event)
         { 
             engine::render_command::toggle_wireframe();
         }
+		if (e.key_code() == engine::key_codes::KEY_BACKSPACE)
+		{
+			m_game_objects.erase(m_game_objects.begin());
+		}
     } 
 }
 
