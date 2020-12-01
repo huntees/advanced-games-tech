@@ -2,6 +2,7 @@
 #include <engine.h>
 #include "player.h"
 #include "engine/entities/bounding_box.h"
+#include "enemy.h"
 
 class example_layer : public engine::layer
 {
@@ -27,6 +28,7 @@ private:
 	player								m_player{};
 	engine::bounding_box				m_player_box;
 	engine::bounding_box				m_cow_box;
+	enemy								m_enemy{};
 
 	engine::ref<engine::material>		m_material{};
 	engine::ref<engine::material>		m_tetrahedron_material{};

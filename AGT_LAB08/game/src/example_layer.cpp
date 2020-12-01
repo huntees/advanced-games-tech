@@ -122,6 +122,7 @@ example_layer::example_layer()
 	m_cow = engine::game_object::create(cow_props);
 	m_cow->set_offset(cow_model->offset());
 	m_cow_box.set_box(cow_props.bounding_shape.x* cow_scale, cow_props.bounding_shape.y* cow_scale, cow_props.bounding_shape.z* cow_scale, cow_props.position);
+	m_enemy.initialise(m_cow, cow_props.position, glm::vec3(1.f, 0.f, 0.f));
 
 
 	// Load the jeep model. Create a jeep object. Set its properties
@@ -189,6 +190,7 @@ example_layer::~example_layer() {}
 void example_layer::on_update(const engine::timestep& time_step) 
 {
 	glm::vec3 pos = m_player.object()->position();
+	glm::vec3 enemy_pos = m_enemy.object()->position();
 
     //m_3d_camera.on_update(time_step);
 	m_physics_manager->dynamics_world_update(m_game_objects, double(time_step));
@@ -196,8 +198,13 @@ void example_layer::on_update(const engine::timestep& time_step)
 	m_player.on_update(time_step);
 	m_player_box.on_update(m_player.object()->position());
 
-	if (m_cow_box.collision(m_player_box))
+	m_enemy.on_update(time_step, m_player.object()->position());
+	m_cow_box.on_update(m_enemy.object()->position());
+
+	if (m_cow_box.collision(m_player_box)) {
 		m_player.object()->set_position(pos);
+		m_enemy.object()->set_position(enemy_pos);
+	}
 
 	m_player.update_camera(m_3d_camera);
 
@@ -241,7 +248,7 @@ void example_layer::on_render()
 	engine::renderer::submit(textured_lighting_shader, tree_transform, m_tree);
 	
 	glm::mat4 cow_transform(1.0f);
-	cow_transform = glm::translate(cow_transform, m_cow->position() - glm::vec3(m_cow->offset().x, 0.f, m_cow->offset().z) * m_cow->scale().x);
+	cow_transform = glm::translate(cow_transform, m_cow->position()  
 	cow_transform = glm::rotate(cow_transform, m_cow->rotation_amount(), m_cow->rotation_axis());
 	cow_transform = glm::scale(cow_transform, m_cow->scale());
 	engine::renderer::submit(textured_lighting_shader, cow_transform, m_cow);
